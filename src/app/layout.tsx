@@ -1,4 +1,6 @@
+import { cookies } from "next/headers";
 import type { FC, ReactNode } from "react";
+import RootStyleRegistry from "~/app/_emotion";
 import "~/styles/globals.css";
 
 interface RootLayoutProps {
@@ -6,6 +8,9 @@ interface RootLayoutProps {
 }
 
 const RootLayout: FC<RootLayoutProps> = ({ children }) => {
+  const cookiesStore = cookies();
+  const colorScheme = cookiesStore.get('mantine-color-scheme');
+
   return (
     <html>
     <head>
@@ -13,7 +18,11 @@ const RootLayout: FC<RootLayoutProps> = ({ children }) => {
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <meta name="description" content="Beerdegu"/>
     </head>
-    <body>{children}</body>
+    <body>
+    <RootStyleRegistry scheme={colorScheme?.value}>
+      {children}
+    </RootStyleRegistry>
+    </body>
     </html>
   );
 };
