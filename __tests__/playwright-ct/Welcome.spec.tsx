@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/experimental-ct-react";
-import Welcome from "../../src/components/Welcome";
+import Welcome from "~/components/home/Welcome";
 
 
 test("Welcome component has correct text", async ({ mount }) => {
