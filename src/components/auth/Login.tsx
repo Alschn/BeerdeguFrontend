@@ -65,6 +65,18 @@ const useLoginMutation = () => {
         return;
       }
 
+      if (
+        error.response?.status === 400 &&
+        (error.response?.data as { email?: string })?.email
+      ) {
+        notifications.show({
+          title: "Your email is unverified",
+          message: "Please check your email for a verification link.",
+          color: "info",
+        });
+        return;
+      }
+
       if (error.response?.status === 400) {
         notifications.show({
           title: "Login failed",

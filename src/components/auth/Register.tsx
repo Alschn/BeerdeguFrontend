@@ -18,21 +18,18 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import NextLink from "next/link";
 import { notifications } from "@mantine/notifications";
-import { useRouter } from "next/navigation";
 import GoogleButton from "../GoogleButton";
 import { type RegisterPayload, register, getGoogleAuthUrl } from "~/api/auth";
 
 const useRegisterMutation = () => {
-  const router = useRouter();
   return useMutation({
     mutationFn: (data: RegisterPayload) => register(data),
     onSuccess: () => {
       notifications.show({
         title: "Account created",
-        message: "Check your email to confirm registration",
-        color: "green",
+        message: "Please check your email for a verification link.",
+        color: "info",
       });
-      router.push("/auth/register/confirm/");
     },
     onError: (error) => {
       if (error instanceof AxiosError) {
