@@ -83,5 +83,3 @@ export const PATCH = handler;
 export const DELETE = handler;
 export const OPTIONS = handler;
 export const HEAD = handler;
-export const TRACE = handler;
-export const CONNECT = handler;
