@@ -1,28 +1,74 @@
-# Create T3 App
+<div align="center" style="padding-bottom: 20px">
+    <h1>Beerdegu Frontend</h1>
+    <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt=""/>&nbsp;
+    <img src="https://img.shields.io/badge/Next.js-%23000000.svg?&style=for-the-badge&logo=next.js&logoColor=white" alt=""/>&nbsp;
+    <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt=""/>&nbsp;
+    <img src="https://img.shields.io/badge/Mantine-0081CB?style=for-the-badge&logo=mantine&logoColor=white" alt=""/>&nbsp;
+    <img src="https://img.shields.io/badge/Vercel-%23000000.svg?&style=for-the-badge&logo=vercel&logoColor=white" alt=""/>&nbsp;
+</div>
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+Beerdegu is a real-time web application meant for beer tasting sessions, when
+you and your friends are rating every consumed beer (color, smell, taste etc.).
 
-## What's next? How do I make an app with this?
+Backend repo: https://github.com/Alschn/Beerdegu
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+## Tools, libraries, frameworks
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+- `react`, `next` - frontend framework
+- `mantine` - UI components library
+- `@tabler/icons-react` - icons
+- `@tanstack/react-query` - data fetching
+- `zod` - validating schemas
+- `react-infinite-scroll-component` - infinite scroll
+- `react-use-websocket` - websocket client
+- `react-beautiful-dnd` - drag n' drop
+- `axios` + fetch - http clients
+- `jsonwebtoken` - decoding json web tokens
+- `msw`, `playwright-msw` - mocking http requests in tests
+- `vitest`, `@vitest/ui`, `@vitest/coverage-c8` + `@testing-library/react` - unit and components tests
+- `@playwright/test` - e2e tests
+- `@playwright/experimental-ct-react` - components tests
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+## Setup
 
-## Learn More
+Create `.env` file with environment variables
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+```dotenv
+API_URL="http://127.0.0.1:8000"
+NEXT_PUBLIC_API_URL=${API_URL}
+NEXT_PUBLIC_WEBSOCKETS_URL="ws://127.0.0.1:8000/ws"
+```
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+### Development
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+Run development server
 
-## How do I deploy this?
+```shell
+pnpm run dev
+```
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+### Testing
+
+Run unit tests - vitest
+
+```shell
+pnpm test
+```
+
+Run e2e tests - playwright
+
+```shell
+pnpm test-e2e
+```
+
+Run components tests - playwright-ct
+
+```shell
+pnpm test-ct
+```
+
+## Deployment
+
+1. Import Git repository in Vercel dashboard
+2. Add `API_URL`, `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_WEBSOCKETS_URL` env variables
+3. Deploy the application
