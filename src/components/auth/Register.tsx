@@ -3,7 +3,6 @@
 import {
   Anchor,
   Button,
-  Checkbox,
   Divider,
   Group,
   Paper,
@@ -12,6 +11,7 @@ import {
   Stack,
   Text,
   TextInput,
+  Flex,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useMutation } from "@tanstack/react-query";
@@ -76,9 +76,7 @@ export function RegisterForm(props: PaperProps) {
       username: "",
       password1: "",
       password2: "",
-      terms: true,
     },
-
     validate: {
       email: (val) => (/^\S+@\S+$/.test(val) ? null : "Invalid email"),
       password1: (val) =>
@@ -111,7 +109,11 @@ export function RegisterForm(props: PaperProps) {
         <GoogleButton radius="xl" onClick={handleGoogleLogin} />
       </Group>
 
-      <Divider label="Or continue with email" labelPosition="center" my="lg" />
+      <Divider
+        label="Or continue with credentials"
+        labelPosition="center"
+        my="lg"
+      />
 
       <form onSubmit={form.onSubmit(handleSubmitRegister)}>
         <Stack>
@@ -165,15 +167,6 @@ export function RegisterForm(props: PaperProps) {
             }
             radius="md"
           />
-          <Checkbox
-            required
-            label="I accept terms and conditions"
-            checked={form.values.terms}
-            onChange={(event) =>
-              form.setFieldValue("terms", event.currentTarget.checked)
-            }
-            error={form.errors.terms && "You must accept terms and conditions"}
-          />
         </Stack>
         <Group position="apart" mt="xl">
           <NextLink href="/auth/login">
@@ -181,6 +174,8 @@ export function RegisterForm(props: PaperProps) {
               {"Already have an account? Login"}
             </Anchor>
           </NextLink>
+        </Group>
+        <Flex mt="xl" align="center" justify="center">
           <Button
             type="submit"
             radius="xl"
@@ -188,7 +183,7 @@ export function RegisterForm(props: PaperProps) {
           >
             {"Register"}
           </Button>
-        </Group>
+        </Flex>
       </form>
     </Paper>
   );

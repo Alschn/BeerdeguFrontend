@@ -112,7 +112,7 @@ export default function PasswordReset() {
             </NextLink>
           </Group>
           <Flex mt="xl" align="center" justify="center">
-            <Button type="submit" loading={mutation.isLoading}>
+            <Button radius="xl" type="submit" loading={mutation.isLoading}>
               {"Reset password"}
             </Button>
           </Flex>
