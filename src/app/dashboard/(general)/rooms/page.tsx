@@ -1,24 +1,21 @@
 import { cookies } from "next/headers";
 import type { PaginatedResponseData, Room } from "~/api/types";
-import RoomsTable from "~/components/dashboard/RoomsTable";
+import RoomsPage from "~/components/dashboard/rooms/RoomsPage";
 import { env } from "~/env.mjs";
 
 export default async function DashboardRoomsPage() {
   const access = cookies().get("access");
-  const r = await fetch(`${env.API_URL}/api/rooms/`, {
+  const r = await fetch(`${env.API_URL}/api/rooms/?page=1&page_size=10`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${access?.value || ""}`,
     },
-    cache: "no-cache",
+    next: {
+      revalidate: 30,
+    },
   });
   const data = (await r.json()) as PaginatedResponseData<Room>;
   const results = data.results;
-
-  return (
-    <div>
-      <RoomsTable initialData={results} />
-    </div>
-  );
+  return <RoomsPage initialData={results} count={data.count} />;
 }

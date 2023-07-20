@@ -1,5 +1,10 @@
 import { axiosGatewayClient } from "./AxiosClient";
-import type { Beer } from "./types";
+import type {
+  Beer,
+  PaginatedResponse,
+  PaginatedResponseData,
+  Room,
+} from "./types";
 
 export const addBeerToRoom = (roomName: string, beerId: number) => {
   return axiosGatewayClient.put<Beer>(`/api/rooms/${roomName}/beers/`, {
@@ -42,4 +47,16 @@ export const leaveRoom = (roomName: string) => {
   return axiosGatewayClient.delete<Record<string, never>>(
     `/api/rooms/${roomName}/leave/`
   );
+};
+
+interface RoomsFilters {
+  page?: number;
+  page_size?: number;
+  // todo: add more filters
+}
+
+export const getRooms = (params?: RoomsFilters) => {
+  return axiosGatewayClient.get<PaginatedResponseData<Room>>(`/api/rooms/`, {
+    params,
+  });
 };

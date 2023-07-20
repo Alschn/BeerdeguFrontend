@@ -1,6 +1,6 @@
 "use client";
 
-import { Paper, Table } from "@mantine/core";
+import { Table } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
   createColumnHelper,
@@ -12,10 +12,6 @@ import { useState, type FC } from "react";
 import type { Room } from "~/api/types";
 import RoomJoinModal from "./RoomJoinModal";
 import { IconLock, IconLockOff } from "@tabler/icons-react";
-
-interface RoomsTableProps {
-  initialData: Room[];
-}
 
 const columnHelper = createColumnHelper<Room>();
 
@@ -57,15 +53,15 @@ function HasPasswordCell({ value }: { value: boolean }) {
   );
 }
 
-const RoomsTable: FC<RoomsTableProps> = ({ initialData }) => {
+interface RoomsTableProps {
+  data: Room[];
+}
+
+const RoomsTable: FC<RoomsTableProps> = ({ data }) => {
   const table = useReactTable({
-    data: initialData,
+    data: data,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
-    enableRowSelection: true,
-    onRowSelectionChange: (rows) => {
-      console.log({ rows });
-    },
   });
 
   const [selectedRow, setSelectedRow] = useState<Room | null>(null);
@@ -76,8 +72,10 @@ const RoomsTable: FC<RoomsTableProps> = ({ initialData }) => {
     modalHandlers.open();
   };
 
+  // todo: column ordering,
+
   return (
-    <Paper p={4}>
+    <>
       {!!selectedRow && (
         <RoomJoinModal
           isOpen={isOpenModal}
@@ -117,7 +115,7 @@ const RoomsTable: FC<RoomsTableProps> = ({ initialData }) => {
           ))}
         </tbody>
       </Table>
-    </Paper>
+    </>
   );
 };
 
