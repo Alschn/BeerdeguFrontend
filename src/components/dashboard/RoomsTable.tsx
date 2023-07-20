@@ -8,8 +8,10 @@ import {
   getCoreRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import type { BaseSyntheticEvent, FC } from "react";
+import { useState, type FC } from "react";
 import type { Room } from "~/api/types";
+import RoomJoinModal from "./RoomJoinModal";
+import { IconLock, IconLockOff } from "@tabler/icons-react";
 
 interface RoomsTableProps {
   initialData: Room[];
@@ -36,8 +38,24 @@ const columns = [
   }),
   columnHelper.accessor("has_password", {
     header: "Password",
+    cell: (info) => {
+      const hasPassword = info.getValue();
+      return <HasPasswordCell value={hasPassword} />;
+    },
   }),
 ];
+
+function HasPasswordCell({ value }: { value: boolean }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center" }}>
+      {value ? (
+        <IconLock size="1rem" color="red" />
+      ) : (
+        <IconLockOff size="1rem" color="green" />
+      )}
+    </div>
+  );
+}
 
 const RoomsTable: FC<RoomsTableProps> = ({ initialData }) => {
   const table = useReactTable({
@@ -50,16 +68,23 @@ const RoomsTable: FC<RoomsTableProps> = ({ initialData }) => {
     },
   });
 
-  // todo: room join modal on row click
+  const [selectedRow, setSelectedRow] = useState<Room | null>(null);
   const [isOpenModal, modalHandlers] = useDisclosure(false);
 
   const handleRowClick = (row: Room) => {
-    // todo: modal
-    alert("Not implemented");
+    setSelectedRow(row);
+    modalHandlers.open();
   };
 
   return (
     <Paper p={4}>
+      {!!selectedRow && (
+        <RoomJoinModal
+          isOpen={isOpenModal}
+          onClose={modalHandlers.close}
+          room={selectedRow}
+        />
+      )}
       <Table verticalSpacing="md" fontSize="sm" highlightOnHover>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
