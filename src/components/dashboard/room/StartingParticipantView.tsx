@@ -4,7 +4,7 @@ import { useRoom } from "~/components/context/room";
 
 export function DetailedBeerCard({ beer }: { beer: BeerObject }) {
   return (
-    <Card withBorder h="100%">
+    <Card withBorder shadow="xs" h="100%">
       <Card.Section p={16}>
         <Grid>
           <Grid.Col xs={12} sm={4} md={3} xl={1}>
