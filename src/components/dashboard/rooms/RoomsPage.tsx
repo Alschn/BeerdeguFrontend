@@ -9,7 +9,7 @@ import {
   Select,
   TextInput,
 } from "@mantine/core";
-import { useDebouncedValue } from "@mantine/hooks";
+import { useDebouncedValue, useDidUpdate } from "@mantine/hooks";
 import { useState, type FC, type ChangeEvent, useMemo } from "react";
 import type { Room } from "~/api/types";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -32,7 +32,7 @@ const PAGE_SIZES = [
 ];
 
 const RoomsPage: FC<RoomsPageProps> = ({ initialData, count }) => {
-  const isClient = useIsClient();
+  const [filtersChanged, setFiltersChanged] = useState(false);
 
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 500);
@@ -53,7 +53,7 @@ const RoomsPage: FC<RoomsPageProps> = ({ initialData, count }) => {
     refetchOnReconnect: false,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
-    enabled: isClient, // todo: disable on mount
+    enabled: filtersChanged,
   });
 
   const data = useMemo(() => {
@@ -62,8 +62,14 @@ const RoomsPage: FC<RoomsPageProps> = ({ initialData, count }) => {
     return dataRooms.pages.flatMap((page) => page.data.results) || [];
   }, [initialData, dataRooms, isFetchingRooms]);
 
+  useDidUpdate(() => {
+    if (filtersChanged) return;
+    setFiltersChanged(true);
+  }, [search, pageSize, page]);
+
   const handleChangeSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearch(e.currentTarget.value);
+    setPage(1);
   };
 
   const handleChangePageSize = (value: string) => {
