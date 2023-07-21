@@ -39,15 +39,32 @@ const useCreateRoomMutation = () => {
         });
         return;
       }
-      // todo: change to something real
+      if ((error?.response?.data as { host?: unknown })?.host) {
+        notifications.show({
+          title: "Could not create new room",
+          message: "Your are already hosting a room. Finish it first.",
+          color: "red",
+        });
+        return;
+      }
+      if ((error.response?.data as { name?: unknown })?.name) {
+        notifications.show({
+          title: "Could not create new room",
+          message: "Room name is not unique or restricted!",
+          color: "red",
+        });
+        return;
+      }
       notifications.show({
-        title: error.response?.status ?? "Error",
-        message: error.response?.statusText ?? "Something went wrong...",
+        title: "Unexpected error",
+        message: "Try again later...",
         color: "red",
       });
     },
   });
 };
+
+const MAX_ROOM_NAME_LENGTH = 8;
 
 const RoomCreateForm = () => {
   const form = useForm({
@@ -76,12 +93,16 @@ const RoomCreateForm = () => {
             required
             label="Room Name"
             placeholder="Enter room name"
-            description="Room name must be unique."
+            description={`Room name must be unique, lowercase and contain at most ${MAX_ROOM_NAME_LENGTH} characters.`}
             value={form.values.name}
             onChange={(event) =>
-              form.setFieldValue("name", event.currentTarget.value)
+              form.setFieldValue(
+                "name",
+                event.currentTarget.value.toLowerCase()
+              )
             }
             radius="md"
+            maxLength={MAX_ROOM_NAME_LENGTH}
           />
           <PasswordInput
             label="Password"

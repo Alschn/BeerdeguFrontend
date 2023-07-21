@@ -72,7 +72,10 @@ const RoomJoinForm = () => {
             description="Room name must be unique."
             value={form.values.name}
             onChange={(event) =>
-              form.setFieldValue("name", event.currentTarget.value)
+              form.setFieldValue(
+                "name",
+                event.currentTarget.value.toLowerCase()
+              )
             }
             radius="md"
           />
