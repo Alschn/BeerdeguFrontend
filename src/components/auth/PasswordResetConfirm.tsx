@@ -81,7 +81,7 @@ const PasswordResetConfirm = ({ uid, token }: PasswordResetConfirmProps) => {
   };
 
   return (
-    <Paper radius="md" p="xl" withBorder miw={400}>
+    <Paper radius="md" p="xl" miw={{ xs: 320, sm: 400 }} withBorder>
       <Text size="lg" weight={500} align="center" mb="lg">
         {"Change password"}
       </Text>

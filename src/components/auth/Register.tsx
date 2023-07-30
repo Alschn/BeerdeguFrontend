@@ -100,7 +100,7 @@ export function RegisterForm(props: PaperProps) {
   };
 
   return (
-    <Paper radius="md" p="xl" withBorder miw={400} {...props}>
+    <Paper radius="md" p="xl" miw={{ xs: 320, sm: 400 }} withBorder {...props}>
       <Text size="lg" weight={500} align="center">
         {"Welcome to Beerdegu, register with"}
       </Text>

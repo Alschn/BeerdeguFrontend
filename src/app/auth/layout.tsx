@@ -1,7 +1,7 @@
 "use client";
 
 import { Container } from "@mantine/core";
-import type { FC, ReactNode } from "react";
+import type { ReactNode } from "react";
 import AuthHeader from "~/components/auth/Header";
 
 interface AuthLayoutProps {

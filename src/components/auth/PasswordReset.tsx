@@ -6,7 +6,6 @@ import {
   Text,
   TextInput,
   Button,
-  Container,
   Group,
   Anchor,
   Box,
@@ -72,52 +71,48 @@ export default function PasswordReset() {
 
   if (emailSent) {
     return (
-      <Container size={460}>
-        <Paper withBorder shadow="md" p={30} radius="md" miw={400}>
-          <Flex mb="xl" direction="column" align="center" justify="center">
-            <Text className={classes.title}>{"Email sent"}</Text>
-            <Text c="dimmed" fz="sm" ta="center">
-              {"Check your inbox for the reset link"}
-            </Text>
-          </Flex>
-        </Paper>
-      </Container>
+      <Paper p="xl" radius="md" miw={{ xs: 320, sm: 400 }} withBorder>
+        <Flex mb="xl" direction="column" align="center" justify="center">
+          <Text className={classes.title}>{"Email sent"}</Text>
+          <Text c="dimmed" fz="sm" ta="center">
+            {"Check your inbox for the reset link"}
+          </Text>
+        </Flex>
+      </Paper>
     );
   }
 
   return (
-    <Container size={460}>
-      <Paper withBorder shadow="md" p={30} radius="md" miw={400}>
-        <Box mb="xl">
-          <Text className={classes.title} align="center" mb="sm">
-            {"Forgot your password?"}
-          </Text>
-          <Text c="dimmed" fz="sm" ta="center">
-            {"Enter your email to get a reset link"}
-          </Text>
-        </Box>
-        <form onSubmit={handleSubmit}>
-          <TextInput
-            id="email"
-            name="email"
-            label="Your email"
-            placeholder="Your email"
-            required
-          />
-          <Group position="apart" mt="xl">
-            <NextLink href={`/auth/login`}>
-              <Anchor component="button" type="button" color="dimmed" size="xs">
-                {"Back to the login page"}
-              </Anchor>
-            </NextLink>
-          </Group>
-          <Flex mt="xl" align="center" justify="center">
-            <Button radius="xl" type="submit" loading={mutation.isLoading}>
-              {"Reset password"}
-            </Button>
-          </Flex>
-        </form>
-      </Paper>
-    </Container>
+    <Paper p="xl" radius="md" miw={{ xs: 320, sm: 400 }} withBorder>
+      <Box mb="xl">
+        <Text className={classes.title} align="center" mb="sm">
+          {"Forgot your password?"}
+        </Text>
+        <Text c="dimmed" fz="sm" ta="center">
+          {"Enter your email to get a reset link"}
+        </Text>
+      </Box>
+      <form onSubmit={handleSubmit}>
+        <TextInput
+          id="email"
+          name="email"
+          label="Your email"
+          placeholder="Your email"
+          required
+        />
+        <Group position="apart" mt="xl">
+          <NextLink href={`/auth/login`}>
+            <Anchor component="button" type="button" color="dimmed" size="xs">
+              {"Back to the login page"}
+            </Anchor>
+          </NextLink>
+        </Group>
+        <Flex mt="xl" align="center" justify="center">
+          <Button radius="xl" type="submit" loading={mutation.isLoading}>
+            {"Reset"}
+          </Button>
+        </Flex>
+      </form>
+    </Paper>
   );
 }
