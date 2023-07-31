@@ -20,7 +20,6 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import NextLink from "next/link";
-import { type FC } from "react";
 import BeerdeguLogo from "~/components/BeerdeguLogo";
 import { LinksGroup } from "./LinksGroup";
 
@@ -84,6 +83,7 @@ const DashboardNavbar: FC<NavbarMinimalProps> = ({
   return (
     <Navbar
       width={{ md: isExpanded ? 300 : 80 }}
+      sx={{ overflow: "auto" }}
       height="100%"
       p="md"
       {...rest}

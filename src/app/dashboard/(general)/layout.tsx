@@ -13,7 +13,7 @@ import {
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import type { FC, ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ColorModeToggle from "~/components/ColorModeToggle";
 import { useAuth } from "~/components/context/auth";
 import DashboardNavbar from "~/components/dashboard/Navbar";
@@ -21,17 +21,25 @@ import NotificationsToggle from "~/components/dashboard/NotificationsToggle";
 import SettingsToggle from "~/components/dashboard/SettingsToggle";
 import UserMenu from "~/components/UserMenu";
 import DashboardBreadcrumbs from "~/components/dashboard/Breadcrumbs";
+import { usePathname } from "next/navigation";
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
 const DashboardLayout: FC<DashboardLayoutProps> = ({ children }) => {
+  const pathname = usePathname();
   const { user } = useAuth();
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
   const [isNavbarExpanded, setIsNavbarExpanded] = useState(true);
+
   const toggleNavbar = () => setIsNavbarOpen((o) => !o);
   const toggleExpandedNavbar = () => setIsNavbarExpanded((o) => !o);
+
+  useEffect(() => {
+    // close full screen navbar on route change
+    setIsNavbarOpen(false);
+  }, [pathname]);
 
   return (
     <AppShell
@@ -133,12 +141,12 @@ function HeaderBar({
         )}
         <ColorModeToggle />
         <Divider orientation="vertical" />
-        <NotificationsToggle />
-        <SettingsToggle />
+        {/* <NotificationsToggle />
+        <SettingsToggle /> */}
         <UserMenu
           user={{
             name: user?.username ?? "",
-            image: "https://avatars.githubusercontent.com/u/25126241?v=4",
+            image: "",
           }}
         />
       </Group>
@@ -175,12 +183,12 @@ function HeaderMobile({
           spacing={16}
         >
           <ColorModeToggle />
-          <NotificationsToggle />
-          <SettingsToggle />
+          {/* <NotificationsToggle />
+          <SettingsToggle /> */}
           <UserMenu
             user={{
               name: user?.username ?? "",
-              image: "https://avatars.githubusercontent.com/u/25126241?v=4",
+              image: "",
             }}
           />
         </Group>
