@@ -1,6 +1,6 @@
 "use client";
 
-import { Container, Loader } from "@mantine/core";
+import { Button, Container, Loader } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { type Dispatch, useEffect, useReducer, useState } from "react";
 import useWebSocket from "react-use-websocket";
@@ -13,7 +13,7 @@ import {
   type RoomState,
   type UserObject,
   type WebsocketMessage,
-  UserRatingsObject,
+  type UserRatingsObject,
 } from "~/api/types";
 import { env } from "~/env.mjs";
 import Header from "./Header";
@@ -170,6 +170,7 @@ interface RoomPageProps {
 const RoomPage = ({ roomId, isHost, token }: RoomPageProps) => {
   const websocketUrl = `${env.NEXT_PUBLIC_WEBSOCKETS_URL}/room/${roomId}/`;
   const [isConnecting, setIsConnecting] = useState(true);
+  const [failedToConnect, setFailedToConnect] = useState(false);
 
   const [state, dispatch] = useReducer(
     roomReducer,
@@ -183,6 +184,7 @@ const RoomPage = ({ roomId, isHost, token }: RoomPageProps) => {
     },
     onOpen: () => {
       setIsConnecting(false);
+      setFailedToConnect(false);
       notifications.show({
         title: "Connection open!",
         message: `Successfully connected to room ${roomId}`,
@@ -195,8 +197,10 @@ const RoomPage = ({ roomId, isHost, token }: RoomPageProps) => {
     },
     onMessage: handleMessage(dispatch),
     onReconnectStop: () => {
+      setIsConnecting(false);
+      setFailedToConnect(true);
       notifications.show({
-        message: `Connection lost!`,
+        message: `Could not establish connection!`,
         color: "red",
       });
     },
@@ -227,6 +231,24 @@ const RoomPage = ({ roomId, isHost, token }: RoomPageProps) => {
         }}
       >
         <Loader color="green" variant="dots" size="xl" />
+      </Container>
+    );
+
+  if (failedToConnect)
+    return (
+      <Container
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          flexDirection: "column",
+        }}
+      >
+        <h1>Failed to connect...</h1>
+        <Button onClick={() => window.location.reload()}>
+          Click here to reload the page
+        </Button>
       </Container>
     );
 
