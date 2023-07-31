@@ -22,6 +22,7 @@ import {
 import NextLink from "next/link";
 import BeerdeguLogo from "~/components/BeerdeguLogo";
 import { LinksGroup } from "./LinksGroup";
+import type { FC } from "react";
 
 const links = [
   { icon: IconGauge, label: "Dashboard", link: "/dashboard" },
