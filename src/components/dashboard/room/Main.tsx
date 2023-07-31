@@ -40,7 +40,7 @@ const RoomMain = () => {
   const currentIndex = active === -1 ? 0 : active;
 
   return (
-    <Box p="lg">
+    <Box my="lg" mx="sm">
       {state === RoomStates.WAITING && <Waiting />}
       {state === RoomStates.STARTING && <Starting />}
       {state === RoomStates.IN_PROGRESS && <InProgress />}
