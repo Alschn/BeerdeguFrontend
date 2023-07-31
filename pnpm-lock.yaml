@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@emotion/react': ^11.10.6
   '@mantine/core': ^6.0.7
+  '@mantine/dates': ^6.0.17
   '@mantine/form': ^6.0.7
   '@mantine/hooks': ^6.0.7
   '@mantine/modals': ^6.0.7
@@ -29,6 +30,7 @@ specifiers:
   '@typescript-eslint/parser': ^5.58.0
   axios: ^1.4.0
   cookies-next: ^2.1.1
+  dayjs: ^1.11.9
   eslint: ^8.38.0
   eslint-config-next: ^13.3.0
   eslint-plugin-jest: ^27.2.1
@@ -36,6 +38,7 @@ specifiers:
   jest: ^29.5.0
   jest-environment-jsdom: ^29.5.0
   jsonwebtoken: ^9.0.0
+  mantine-react-table: ^1.0.0
   msw: ^1.2.1
   next: ^13.4.6
   next-auth: ^4.22.1
@@ -53,6 +56,7 @@ specifiers:
 dependencies:
   '@emotion/react': 11.10.6_yuz6bkerhkjfjuf6zeb7j6ybc4
   '@mantine/core': 6.0.7_nbydshfrfohuslc256zr7tkpgu
+  '@mantine/dates': 6.0.17_bsey62g3enyh6lm33csyuwiehu
   '@mantine/form': 6.0.7_react@18.2.0
   '@mantine/hooks': 6.0.7_react@18.2.0
   '@mantine/modals': 6.0.7_zeregtcintujh6drima26d2hby
@@ -63,7 +67,9 @@ dependencies:
   '@tanstack/react-table': 8.9.2_biqbaboplfbrettd7655fr4n2y
   axios: 1.4.0
   cookies-next: 2.1.1
+  dayjs: 1.11.9
   jsonwebtoken: 9.0.0
+  mantine-react-table: 1.0.0_m2svdoghruwm5ouk5r3weys5v4
   next: 13.4.6_biqbaboplfbrettd7655fr4n2y
   next-auth: 4.22.1_beomsnwnvoyap5ewkkd5o2pmcm
   react: 18.2.0
@@ -1141,6 +1147,21 @@ packages:
       - '@types/react'
     dev: false
 
+  /@mantine/dates/6.0.17_bsey62g3enyh6lm33csyuwiehu:
+    resolution: {integrity: sha512-p94rC0GkDopTrbNz0i+IStQshHYxYelpq66DNV+lt42bwP3H7lZDdYup0WnmzJpSMHiAQeiixqaFlcDibRxyrg==}
+    peerDependencies:
+      '@mantine/core': 6.0.17
+      '@mantine/hooks': 6.0.17
+      dayjs: '>=1.0.0'
+      react: '>=16.8.0'
+    dependencies:
+      '@mantine/core': 6.0.7_nbydshfrfohuslc256zr7tkpgu
+      '@mantine/hooks': 6.0.7_react@18.2.0
+      '@mantine/utils': 6.0.17_react@18.2.0
+      dayjs: 1.11.9
+      react: 18.2.0
+    dev: false
+
   /@mantine/form/6.0.7_react@18.2.0:
     resolution: {integrity: sha512-5fApVmV9gqqh0h04KkeLzZ79LCBMt91Nydj/h1uzFNluiIxcLCpN/VrOvqiG9DbvIi6h6yeBP/7rbZheHjuXgg==}
     peerDependencies:
@@ -1202,6 +1223,14 @@ packages:
       csstype: 3.0.9
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+    dev: false
+
+  /@mantine/utils/6.0.17_react@18.2.0:
+    resolution: {integrity: sha512-U6SWV/asYE6NhiHx4ltmVZdQR3HwGVqJxVulhOylMcV1tX/P1LMQUCbGV2Oe4O9jbX4/YW5B/CBb4BbEhENQFQ==}
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /@mantine/utils/6.0.7_react@18.2.0:
@@ -1576,6 +1605,13 @@ packages:
     resolution: {integrity: sha512-1kaPH5APIWGtXe0W0eQ9g4MdfaQJ2gh95TAa94lNAqRR0JeC3fkD0yXGCcUiNK4GnGDv3UtPSCd3dbdKTe1b2A==}
     dev: false
 
+  /@tanstack/match-sorter-utils/8.8.4:
+    resolution: {integrity: sha512-rKH8LjZiszWEvmi01NR72QWZ8m4xmXre0OOwlRGnjU01Eqz/QnN+cqpty2PJ0efHblq09+KilvyR7lsbzmXVEw==}
+    engines: {node: '>=12'}
+    dependencies:
+      remove-accents: 0.4.2
+    dev: false
+
   /@tanstack/query-core/4.29.15:
     resolution: {integrity: sha512-Recc1d5rjHesKhzlH3Aw66v+vQxtB9OHEXP/vxgEcEJ0DwEpfe3EQ4id20vuBJHY2XRjfgWGmUs6ZgK6PSsTXA==}
     dev: false
@@ -1610,9 +1646,39 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
+  /@tanstack/react-table/8.9.3_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-Ng9rdm3JPoSCi6cVZvANsYnF+UoGVRxflMb270tVj0+LjeT/ZtZ9ckxF6oLPLcKesza6VKBqtdF9mQ+vaz24Aw==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      react: '>=16'
+      react-dom: '>=16'
+    dependencies:
+      '@tanstack/table-core': 8.9.3
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
+  /@tanstack/react-virtual/3.0.0-beta.54_react@18.2.0:
+    resolution: {integrity: sha512-D1mDMf4UPbrtHRZZriCly5bXTBMhylslm4dhcHqTtDJ6brQcgGmk8YD9JdWBGWfGSWPKoh2x1H3e7eh+hgPXtQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@tanstack/virtual-core': 3.0.0-beta.54
+      react: 18.2.0
+    dev: false
+
   /@tanstack/table-core/8.9.2:
     resolution: {integrity: sha512-ajc0OF+karBAdaSz7OK09rCoAHB1XI1+wEhu+tDNMPc+XcO+dTlXXN/Vc0a8vym4kElvEjXEDd9c8Zfgt4bekA==}
     engines: {node: '>=12'}
+    dev: false
+
+  /@tanstack/table-core/8.9.3:
+    resolution: {integrity: sha512-NpHZBoHTfqyJk0m/s/+CSuAiwtebhYK90mDuf5eylTvgViNOujiaOaxNDxJkQQAsVvHWZftUGAx1EfO1rkKtLg==}
+    engines: {node: '>=12'}
+    dev: false
+
+  /@tanstack/virtual-core/3.0.0-beta.54:
+    resolution: {integrity: sha512-jtkwqdP2rY2iCCDVAFuaNBH3fiEi29aTn2RhtIoky8DTTiCdc48plpHHreLwmv1PICJ4AJUUESaq3xa8fZH8+g==}
     dev: false
 
   /@testing-library/dom/9.2.0:
@@ -2665,6 +2731,10 @@ packages:
       whatwg-mimetype: 3.0.0
       whatwg-url: 11.0.0
     dev: true
+
+  /dayjs/1.11.9:
+    resolution: {integrity: sha512-QvzAURSbQ0pKdIye2txOzNaHmxtUBXerpY0FJsFXUMKbIZeFm5ht1LS/jFsrncjnmtv8HsG0W2g6c0zUjZWmpA==}
+    dev: false
 
   /debug/3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
@@ -4828,6 +4898,30 @@ packages:
       tmpl: 1.0.5
     dev: true
 
+  /mantine-react-table/1.0.0_m2svdoghruwm5ouk5r3weys5v4:
+    resolution: {integrity: sha512-9WeIQ2N6lJdv5/9NykpxITEISbKJtt/kh32qHNfNZ1l4TpK9fQ0GbYEDGtI5hyuK79F6b29lsSDoPDrsXX+jiQ==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      '@emotion/react': '>=11'
+      '@mantine/core': '>=6'
+      '@mantine/dates': '>=6'
+      '@mantine/hooks': '>=6'
+      '@tabler/icons-react': '>=2.23.0'
+      react: '>=18.0'
+      react-dom: '>=18.0'
+    dependencies:
+      '@emotion/react': 11.10.6_yuz6bkerhkjfjuf6zeb7j6ybc4
+      '@mantine/core': 6.0.7_nbydshfrfohuslc256zr7tkpgu
+      '@mantine/dates': 6.0.17_bsey62g3enyh6lm33csyuwiehu
+      '@mantine/hooks': 6.0.7_react@18.2.0
+      '@tabler/icons-react': 2.16.0_react@18.2.0
+      '@tanstack/match-sorter-utils': 8.8.4
+      '@tanstack/react-table': 8.9.3_biqbaboplfbrettd7655fr4n2y
+      '@tanstack/react-virtual': 3.0.0-beta.54_react@18.2.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
   /map-stream/0.1.0:
     resolution: {integrity: sha512-CkYQrPYZfWnu/DAmVCpTSX/xHpKZ80eKh2lAkyA6AJTef6bW+6JpbQZN5rofum7da+SyN1bi5ctTm+lTfcCW3g==}
     dev: true
@@ -5666,6 +5760,10 @@ packages:
       define-properties: 1.2.0
       functions-have-names: 1.2.3
     dev: true
+
+  /remove-accents/0.4.2:
+    resolution: {integrity: sha512-7pXIJqJOq5tFgG1A2Zxti3Ht8jJF337m4sowbuHsW30ZnkQFnDzy9qBNhgzX8ZLW4+UBcXiiR7SwR6pokHsxiA==}
+    dev: false
 
   /require-directory/2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
