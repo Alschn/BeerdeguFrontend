@@ -1,5 +1,15 @@
 "use client";
 
+import { Center, Loader } from "@mantine/core";
+
 export default function DashboardLoading() {
-  return <h1>Dashboard Loading...</h1>;
+  return (
+    <Center
+      sx={{
+        minHeight: "calc(100vh - 60px)",
+      }}
+    >
+      <Loader />
+    </Center>
+  );
 }
