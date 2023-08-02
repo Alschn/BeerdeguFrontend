@@ -12,7 +12,7 @@ import {
 import { Form, useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { joinRoom } from "~/api/rooms";
 
 type JoinRoomPayload = {
@@ -44,9 +44,12 @@ const useRoomJoinMutation = () => {
 };
 
 const RoomJoinForm = () => {
+  const searchParams = useSearchParams();
+  const roomNameParam = searchParams.get("name");
+
   const form = useForm({
     initialValues: {
-      name: "",
+      name: roomNameParam ?? "",
       password: "",
     },
   });
