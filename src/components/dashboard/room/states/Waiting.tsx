@@ -1,5 +1,18 @@
+import { Stack, Title } from "@mantine/core";
+import ParticipantsList from "../ParticipantsList";
+import { useRoom } from "~/components/context/room";
+
 const Waiting = () => {
-  return <h1>Waiting for users to join...</h1>;
+  const { users } = useRoom();
+
+  return (
+    <Stack align="center">
+      <Title order={1}>
+        Waiting for users to join...
+      </Title>
+      <ParticipantsList data={users} size="xl" />
+    </Stack>
+  );
 };
 
 export default Waiting;
