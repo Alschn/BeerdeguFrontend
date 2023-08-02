@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Container, Loader } from "@mantine/core";
+import { Button, Container, Loader, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { type Dispatch, useEffect, useReducer, useState } from "react";
 import useWebSocket from "react-use-websocket";
@@ -22,6 +22,8 @@ import { RoomContextProvider } from "~/components/context/room";
 import Main from "./Main";
 import Drawer from "./Drawer";
 import { useDisclosure } from "@mantine/hooks";
+import NextLink from "next/link";
+import BeerdeguLogo from "~/components/BeerdeguLogo";
 
 const USER_PING_INTERVAL_MS = 10_000;
 const USERS_FETCH_INTERVAL_MS = 10_000;
@@ -230,7 +232,7 @@ const RoomPage = ({ roomId, isHost, token }: RoomPageProps) => {
           height: "100vh",
         }}
       >
-        <Loader color="green" variant="dots" size="xl" />
+        <Loader color="orange" variant="dots" size="xl" />
       </Container>
     );
 
@@ -243,12 +245,19 @@ const RoomPage = ({ roomId, isHost, token }: RoomPageProps) => {
           justifyContent: "center",
           height: "100vh",
           flexDirection: "column",
+          gap: 16
         }}
       >
-        <h1>Failed to connect...</h1>
-        <Button onClick={() => window.location.reload()}>
-          Click here to reload the page
+        <BeerdeguLogo showText={false} height={100}/>
+        <Title order={1}>Failed to connect...</Title>
+        <Button color="orange" onClick={() => window.location.reload()} miw={160}>
+          Refresh
         </Button>
+        <NextLink href="/dashboard/rooms">
+          <Button color="orange" variant="outline" miw={160}>
+            Back to Dashboard
+          </Button>
+        </NextLink>
       </Container>
     );
 

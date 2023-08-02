@@ -15,9 +15,10 @@ interface IsInRoomResponse {
 }
 
 const DashboardRoomsRoomPage = async ({ params }: RouteProps) => {
+  const roomName = params.roomId.toLowerCase();
   const access = cookies().get("access");
   const r = await fetch(
-    `${env.NEXT_PUBLIC_API_URL}/api/rooms/${params.roomId}/in/`,
+    `${env.NEXT_PUBLIC_API_URL}/api/rooms/${roomName}/in/`,
     {
       method: "GET",
       headers: {
