@@ -58,7 +58,7 @@ const RoomJoinForm = () => {
   };
 
   return (
-    <Paper radius="md" p="xl" withBorder miw={400}>
+    <Paper radius="md" p="xl" miw={{ xs: 320, sm: 400 }} withBorder>
       <Text size="xl" weight={500} align="center">
         {"Join Room"}
       </Text>
