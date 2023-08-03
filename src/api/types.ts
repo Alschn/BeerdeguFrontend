@@ -199,7 +199,7 @@ export interface UserRatingsObject {
   note: number;
 }
 
-const Commands = {
+export const Commands = {
   SET_NEW_MESSAGE: "set_new_message",
   SET_USERS: "set_users",
   SET_BEERS: "set_beers",
@@ -207,6 +207,9 @@ const Commands = {
   SET_ROOM_STATE: "set_room_state",
   SET_FINAL_RESULTS: "set_final_results",
   SET_USER_RESULTS: "set_user_results",
+  USER_JOIN: "user_join",
+  USER_LEAVE: "user_leave",
+  USER_DISCONNECT: "user_disconnect",
 } as const;
 
 export type CommandType = (typeof Commands)[keyof typeof Commands];
@@ -215,7 +218,6 @@ export interface WebsocketMessage {
   data: unknown | UserObject[]; // todo: type every command with its content
   command: CommandType;
   timestamp: string;
-  extra?: unknown;
 }
 
 export interface ChatMessageObject {

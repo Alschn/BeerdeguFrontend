@@ -1,6 +1,6 @@
 import { Drawer, Flex, type DrawerProps, Divider, Title } from "@mantine/core";
 import NextLink from "next/link";
-import { type RoomState, RoomStates } from "~/api/types";
+import { type RoomState, RoomStates, Commands } from "~/api/types";
 import BeerdeguLogo from "~/components/BeerdeguLogo";
 import { useRoom } from "~/components/context/room";
 import ControlButton from "../ControlButton";
@@ -9,8 +9,10 @@ import { notifications } from "@mantine/notifications";
 import { useRouter } from "next/navigation";
 import { leaveRoom } from "~/api/rooms";
 import { useMutation } from "@tanstack/react-query";
+import { useAuth } from "~/components/context/auth";
 
 const RoomDrawer = ({ opened, onClose }: DrawerProps) => {
+  const { user } = useAuth();
   const { roomName, state, isHost, sendJsonMessage, users } = useRoom();
   const router = useRouter();
 
@@ -49,6 +51,12 @@ const RoomDrawer = ({ opened, onClose }: DrawerProps) => {
   const leaveRoomMutation = useMutation({
     mutationFn: () => leaveRoom(roomName),
     onSuccess: () => {
+      if (user) {
+        sendJsonMessage({
+          command: Commands.USER_LEAVE,
+          data: user.username
+        })
+      }
       onClose();
       notifications.show({
         title: "Success",

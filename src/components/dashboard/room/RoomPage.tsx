@@ -14,6 +14,7 @@ import {
   type UserObject,
   type WebsocketMessage,
   type UserRatingsObject,
+  Commands,
 } from "~/api/types";
 import { env } from "~/env.mjs";
 import Header from "./Header";
@@ -136,6 +137,37 @@ const handleMessage =
     const data = event.data as string;
     try {
       const parsed = JSON.parse(data) as WebsocketMessage;
+      if (parsed.command === Commands.USER_DISCONNECT) {
+        const username = parsed.data as string;
+        notifications.show({
+          id: `toast-user_disconnect-${username}`,
+          title: `${username} has disconnected`,
+          message: `User is no longer active in this room`,
+          color: "red.6",
+          autoClose: 2000
+        })
+        return;
+      }
+      if (parsed.command === Commands.USER_LEAVE) {
+        const username = parsed.data as string;
+        notifications.show({
+          id: `toast-user_leave-${username}`,
+          title: `${username} has left the room`,
+          message: `User is no longer part of this room`,
+          color: "yellow",
+        })
+        return;
+      }
+      if (parsed.command === Commands.USER_JOIN) {
+        const username = parsed.data as string;
+        notifications.show({
+          id: `toast-user_join-${username}`,
+          title: `${username} has joined the room`,
+          message: `User can now participate in this session`,
+          color: "indigo",
+        })
+        return;
+      }
       dispatch({
         type: parsed.command,
         payload: parsed.data,
