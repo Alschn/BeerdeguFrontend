@@ -34,7 +34,7 @@ const DashboardRoomsRoomPage = async ({ params }: RouteProps) => {
   const data = (await r.json()) as IsInRoomResponse;
 
   return (
-    <RoomPage roomId={params.roomId} isHost={data.is_host} token={data.token} />
+    <RoomPage roomId={roomName} isHost={data.is_host} token={data.token} />
   );
 };
 
