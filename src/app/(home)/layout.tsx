@@ -38,7 +38,7 @@ export default function HomeLayout({ children }: { children: ReactNode }) {
     <>
       <HomeHeader height={headerHeight} />
       <main style={{ marginTop: headerHeight }}>{children}</main>
-      <HomeFooter data={footerLinks} />
+      <HomeFooter data={[]} />
     </>
   );
 }

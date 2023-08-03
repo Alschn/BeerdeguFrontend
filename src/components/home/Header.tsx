@@ -36,6 +36,8 @@ import ColorModeToggle from "~/components/ColorModeToggle";
 import UserMenu from "~/components/UserMenu";
 import { useAuth } from "~/components/context/auth";
 import LanguagePicker from "../LanguagePicker";
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 const useStyles = createStyles((theme) => ({
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -216,6 +218,7 @@ interface HomeHeaderProps {
 }
 
 const HomeHeader = ({ height }: HomeHeaderProps) => {
+  const pathname = usePathname();
   const { user } = useAuth();
   const { classes, theme } = useStyles();
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
@@ -240,12 +243,18 @@ const HomeHeader = ({ height }: HomeHeaderProps) => {
     </UnstyledButton>
   ));
 
+  useEffect(() => {
+    closeDrawer();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname])
+
   return (
     <>
       <Header height={height} px="md" withBorder={false} pos="fixed" zIndex={1}>
         <Group position="apart" align="center" sx={{ height: "100%" }}>
-          <BeerdeguLogo height={48} />
-
+          <NextLink href="/">
+            <BeerdeguLogo height={48} />
+          </NextLink>
           <Group
             sx={{ height: "100%" }}
             spacing={0}
@@ -255,39 +264,30 @@ const HomeHeader = ({ height }: HomeHeaderProps) => {
             <NextLink href="/" className={classes.link}>
               Home
             </NextLink>
-
             {/* <FeaturesHoverCard /> */}
-
-            <NextLink href="/blog" className={classes.link}>
+            {/* <NextLink href="/blog" className={classes.link}>
               Blog
             </NextLink>
-
             <NextLink href="/contact" className={classes.link}>
               Contact
             </NextLink>
-
             <NextLink href="/about" className={classes.link}>
               About
-            </NextLink>
-
+            </NextLink> */}
             <Divider orientation="vertical" my={16} />
-
             <NextLink href="/dashboard" className={classes.link}>
               Dashboard
             </NextLink>
           </Group>
 
-          <Group className={classes.hiddenMobile} spacing="">
+          <Group className={classes.hiddenMobile}>
             <ColorModeToggle />
-
-            <LanguagePicker lang="en" />
-
+            {/* <LanguagePicker lang="en" /> */}
             {user ? (
               <UserMenu
                 user={{
                   name: user.username,
-                  image:
-                    "https://avatars0.githubusercontent.com/u/9947422?s=460&v=4",
+                  image: "",
                 }}
               />
             ) : (
@@ -301,22 +301,44 @@ const HomeHeader = ({ height }: HomeHeaderProps) => {
               </>
             )}
           </Group>
-
-          <Burger
-            opened={drawerOpened}
-            onClick={toggleDrawer}
-            className={classes.hiddenDesktop}
-          />
+          <Group className={classes.hiddenDesktop}>
+            <ColorModeToggle />
+            <Burger
+              opened={drawerOpened}
+              onClick={toggleDrawer}
+              // todo: clean up later
+              h={40}
+              w={40}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor:
+                  theme.colorScheme === "dark"
+                    ? theme.colors.dark[6]
+                    : theme.colors.gray[1],
+                "&:hover": {
+                  backgroundColor:
+                    theme.colorScheme === "dark"
+                      ? theme.colors.dark[7]
+                      : "white",
+                },
+              }}
+            />
+          </Group>
         </Group>
       </Header>
-
       {/* todo: improve this drawer */}
       <Drawer
         opened={drawerOpened}
         onClose={closeDrawer}
         size="100%"
         padding="md"
-        title="Navigation"
+        title={
+          <NextLink href="/">
+            <BeerdeguLogo/>
+          </NextLink>
+        }
         className={classes.hiddenDesktop}
         zIndex={1000000}
       >
@@ -328,7 +350,6 @@ const HomeHeader = ({ height }: HomeHeaderProps) => {
           <NextLink href="/" className={classes.link}>
             Home
           </NextLink>
-
           {/* <UnstyledButton className={classes.link} onClick={toggleLinks}>
             <Center inline>
               <Box component="span" mr={5}>
@@ -337,21 +358,17 @@ const HomeHeader = ({ height }: HomeHeaderProps) => {
               <IconChevronDown size={16} color={theme.fn.primaryColor()} />
             </Center>
           </UnstyledButton>
-
           <Collapse in={linksOpened}>{links}</Collapse> */}
-
-          <NextLink href="/blog" className={classes.link}>
+          {/* <NextLink href="/blog" className={classes.link}>
             Blog
-          </NextLink>
+          </NextLink> */}
           <NextLink href="/dashboard" className={classes.link}>
             Dashboard
           </NextLink>
-
           <Divider
             my="sm"
             color={theme.colorScheme === "dark" ? "dark.5" : "gray.1"}
           />
-
           {!user && (
             <Group position="center" grow pb="xl" px="md">
               <NextLink href={`/auth/login`}>

@@ -1,19 +1,24 @@
 "use client";
 
 import { Group, Header, type HeaderProps } from "@mantine/core";
+import BeerdeguLogo from "../BeerdeguLogo";
+import NextLink from "next/link";
 
 const AuthHeader = (props: Omit<HeaderProps, "children">) => {
   return (
     <Header
       px="md"
-      withBorder={false}
+      py={8}
       pos="fixed"
-      zIndex={1}
       bg="transparent"
+      zIndex={1}
+      withBorder={false}
       {...props}
     >
-      <Group position="apart" align="center" h="100%">
-        {/* todo */}
+      <Group position="center" align="center" h="100%">
+        <NextLink href="/">
+          <BeerdeguLogo showText />
+        </NextLink>
       </Group>
     </Header>
   );

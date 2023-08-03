@@ -1,6 +1,12 @@
 "use client";
 
-import { Title, Text, Anchor, createStyles, Code, Box } from "@mantine/core";
+import { Title, Text, createStyles, Box, Group, Button } from "@mantine/core";
+import { useAuth } from "../context/auth";
+import NextLink from "next/link";
+import { logout } from "~/api/auth";
+import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { notifications } from "@mantine/notifications";
 
 const useStyles = createStyles((theme) => ({
   title: {
@@ -14,8 +20,34 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
+const useLogoutMutation = () => {
+  const router = useRouter();
+  const mutation = useMutation({
+    mutationFn: () => logout(),
+    onSuccess: () => {
+      notifications.show({
+        title: "Logout successful",
+        message: "Redirecting to login page...",
+      });
+      router.push("/auth/login");
+      router.refresh();
+    },
+    onError: () => {
+      notifications.show({
+        title: "Logout failed",
+        message: "Please try again later...",
+      });
+    },
+  });
+  return mutation;
+};
+
 function Welcome() {
   const { classes } = useStyles();
+  const { isAuthenticated } = useAuth();
+
+  const logoutMutation = useLogoutMutation();
+  const handleLogout = () => logoutMutation.mutate();
 
   return (
     <Box
@@ -25,6 +57,7 @@ function Welcome() {
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
+        alignItems: "center",
       }}
     >
       <Title className={classes.title} align="center" mt={0}>
@@ -44,16 +77,49 @@ function Welcome() {
         size="lg"
         sx={{ maxWidth: 580 }}
         mx="auto"
-        mt="xl"
+        px="sm"
+        my="lg"
       >
-        This starter Next.js project includes a minimal setup for server side
-        rendering, if you want to learn more on Mantine + Next.js integration
-        follow{" "}
-        <Anchor href="https://mantine.dev/guides/next/" size="lg">
-          this guide
-        </Anchor>
-        . To get started edit <Code>Welcome.tsx</Code> file.
+        Secure your spot for the ultimate online, real time craft beer tasting
+        experience, and get ready to embark on a flavor-filled adventure!
+        Possible thanks to the power of Beerdegu!
       </Text>
+      <Group mt="sm">
+        {!isAuthenticated ? (
+          <>
+            <NextLink href="/auth/login">
+              <Button color="orange" miw={{ xs: 120, sm: 150 }}>
+                Login
+              </Button>
+            </NextLink>
+            <NextLink href="/auth/register">
+              <Button color="yellow" miw={{ xs: 120, sm: 150 }}>
+                Register
+              </Button>
+            </NextLink>
+          </>
+        ) : (
+          <>
+            <NextLink href="/dashboard/rooms/join">
+              <Button color="orange" miw={{ xs: 90, sm: 150 }}>
+                Join Room
+              </Button>
+            </NextLink>
+            <NextLink href="/dashboard/rooms/create">
+              <Button color="yellow" miw={{ xs: 90, sm: 150 }}>
+                Create Room
+              </Button>
+            </NextLink>
+            <Button
+              color="red"
+              disabled={logoutMutation.isLoading}
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
+          </>
+        )}
+      </Group>
     </Box>
   );
 }

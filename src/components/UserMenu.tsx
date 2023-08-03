@@ -16,6 +16,7 @@ import {
   IconHeart,
   IconMessage,
   IconStar,
+  IconDeviceDesktopAnalytics,
 } from "@tabler/icons-react";
 import { type FC } from "react";
 import NextLink from "next/link";
@@ -167,7 +168,7 @@ const UserMenu: FC<UserMenuProps> = ({ user, ...rest }) => {
 
         <Menu.Label>Dashboard</Menu.Label>
 
-        <NextLink href="/">
+        <NextLink href="/dashboard">
           <Menu.Item
             icon={
               <IconDashboard
@@ -180,14 +181,27 @@ const UserMenu: FC<UserMenuProps> = ({ user, ...rest }) => {
             Dashboard
           </Menu.Item>
         </NextLink>
+        <NextLink href="/dashboard/rooms">
+          <Menu.Item
+            icon={
+              <IconDeviceDesktopAnalytics
+                size="0.9rem"
+                stroke={1.5}
+                color={theme.colors.blue[6]}
+              />
+            }
+          >
+            Rooms
+          </Menu.Item>
+        </NextLink>
 
-        <Menu.Label>Settings</Menu.Label>
+        {/* <Menu.Label>Settings</Menu.Label>
 
         <NextLink href="/dashboard/account">
           <Menu.Item icon={<IconSettings size="0.9rem" stroke={1.5} />}>
             Account settings
           </Menu.Item>
-        </NextLink>
+        </NextLink> */}
 
         <Menu.Divider />
 

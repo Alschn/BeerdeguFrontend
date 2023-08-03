@@ -104,7 +104,7 @@ const RoomHeader = ({ onDrawerToggle, isDrawerOpen }: RoomHeaderProps) => {
           <UserMenu
             user={{
               name: user?.username || "",
-              image: "https://avatars.githubusercontent.com/u/1024025?v=4",
+              image: "",
             }}
           />
         </Group>

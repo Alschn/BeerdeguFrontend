@@ -12,8 +12,10 @@ import {
   IconBrandTwitter,
   IconBrandYoutube,
   IconBrandInstagram,
+  IconBrandGithub,
 } from "@tabler/icons-react";
 import BeerdeguLogo from "../BeerdeguLogo";
+import NextLink from "next/link";
 
 const useStyles = createStyles((theme) => ({
   footer: {
@@ -152,14 +154,17 @@ export default function FooterLinks({ data }: FooterLinksProps) {
     <footer className={classes.footer}>
       <Container className={classes.inner}>
         <div className={classes.logo}>
-          <BeerdeguLogo
-            height={30}
-            containerProps={{
-              justify: "start",
-            }}
-          />
+          <NextLink href="/">
+            <BeerdeguLogo
+              height={30}
+              containerProps={{
+                justify: "start",
+              }}
+            />
+          </NextLink>
+
           <Text size="xs" color="dimmed" className={classes.description}>
-            Build fully functional accessible web applications faster than ever
+            {"Taste craft beers and mark them in real time with your friends"}
           </Text>
         </div>
         <div className={classes.groups}>{groups}</div>
@@ -169,9 +174,8 @@ export default function FooterLinks({ data }: FooterLinksProps) {
         <Text color="dimmed" size="sm">
           © 2023 Beerdegu.com. All rights reserved.
         </Text>
-
         <Group spacing={0} className={classes.social} position="right" noWrap>
-          <ActionIcon size="lg">
+          {/* <ActionIcon size="lg">
             <IconBrandTwitter size="1.05rem" stroke={1.5} />
           </ActionIcon>
           <ActionIcon size="lg">
@@ -179,7 +183,12 @@ export default function FooterLinks({ data }: FooterLinksProps) {
           </ActionIcon>
           <ActionIcon size="lg">
             <IconBrandInstagram size="1.05rem" stroke={1.5} />
-          </ActionIcon>
+          </ActionIcon> */}
+          <NextLink href="https://github.com/Alschn" target="_blank">
+            <ActionIcon size="lg">
+              <IconBrandGithub size="1.05rem" stroke={1.5} />
+            </ActionIcon>
+          </NextLink>
         </Group>
       </Container>
     </footer>
