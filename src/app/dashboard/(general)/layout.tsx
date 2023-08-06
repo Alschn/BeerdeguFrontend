@@ -50,7 +50,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ children }) => {
               ? theme.colors.dark[8]
               : theme.colors.gray[0],
           [theme.fn.smallerThan(theme.breakpoints.sm)]: {
-            paddingLeft: "1rem",
+            padding: "calc(50px + 0.5rem) 0.5rem 0.5rem 0.5rem"
           },
           [theme.fn.largerThan(theme.breakpoints.sm)]: {
             paddingTop: "1rem",
