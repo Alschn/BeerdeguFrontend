@@ -12,6 +12,11 @@ export type PaginatedResponseData<T> = {
 
 export type PaginatedResponse<T> = Response<PaginatedResponseData<T>>;
 
+export type PageNumberPaginationParams = {
+  page?: number;
+  page_size?: number;
+};
+
 type Nullable<T> = T | null;
 
 export interface User {

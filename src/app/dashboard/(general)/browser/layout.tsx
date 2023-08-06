@@ -13,17 +13,19 @@ const DashboardBrowserLayout: FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   return (
-    <Card shadow="xs" p={0}>
-      <Tabs value={path} onTabChange={handleRouteChange}>
-        <Tabs.List grow>
-          <Tabs.Tab value="beers">Beers</Tabs.Tab>
-          <Tabs.Tab value="styles">Beer Styles</Tabs.Tab>
-          <Tabs.Tab value="hops">Hops</Tabs.Tab>
-          <Tabs.Tab value="breweries">Breweries</Tabs.Tab>
-        </Tabs.List>
-      </Tabs>
+    <>
+      <Card shadow="xs" p={0} component="nav">
+        <Tabs value={path} onTabChange={handleRouteChange}>
+          <Tabs.List grow>
+            <Tabs.Tab value="beers">Beers</Tabs.Tab>
+            <Tabs.Tab value="styles">Beer Styles</Tabs.Tab>
+            <Tabs.Tab value="hops">Hops</Tabs.Tab>
+            <Tabs.Tab value="breweries">Breweries</Tabs.Tab>
+          </Tabs.List>
+        </Tabs>
+      </Card>
       <Box component="section">{children}</Box>
-    </Card>
+    </>
   );
 };
 

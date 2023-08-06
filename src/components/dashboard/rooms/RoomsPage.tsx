@@ -51,15 +51,15 @@ const RoomsPage: FC<RoomsPageProps> = ({ initialData }) => {
     refetchOnWindowFocus: false,
     initialData: {
       pages: [initialData],
-      pageParams: ["rooms", { page: 1, page_size: 10 }],
+      pageParams: [1],
     },
+    initialDataUpdatedAt: new Date().getTime() - 30 * 1000,
   });
 
   const data = useMemo(() => {
-    if (isFetchingRooms) return [];
     if (!dataRooms) return initialData.results;
     return dataRooms.pages.flatMap((page) => page.results) || [];
-  }, [initialData.results, dataRooms, isFetchingRooms]);
+  }, [dataRooms, initialData.results]);
 
   const handleChangeSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearch(e.currentTarget.value);
