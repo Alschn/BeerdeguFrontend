@@ -82,12 +82,16 @@ const Finished = () => {
 
   const mutation = useGenerateReportMutation(roomName);
 
+  const handleDownloadReport = () => {
+    mutation.mutate();
+  };
+
   return (
     <Container>
       <Title order={1} mb={rem(32)} align="center">
         Beer tasting session has ended!
       </Title>
-      <Flex align="center" justify="space-between" mb={rem(16)}>
+      <Flex align="center" justify="space-between" mb="md">
         <Button
           leftIcon={<IconArrowLeft size={rem(16)} />}
           disabled={activeStep === 0}
@@ -106,7 +110,12 @@ const Finished = () => {
           Results
         </Button>
       </Flex>
-      <Paper withBorder mb={rem(16)}>
+      <Paper
+        withBorder
+        mb="md"
+        sx={{ overflow: "auto" }}
+        id="results-table-container"
+      >
         {activeStep === 0 ? (
           <UserRatingTable data={userResults} />
         ) : (
@@ -116,7 +125,7 @@ const Finished = () => {
       <Flex justify="end">
         <Button
           leftIcon={<IconDownload size={rem(20)} />}
-          onClick={() => mutation.mutate()}
+          onClick={handleDownloadReport}
           loading={mutation.isLoading}
         >
           {"Download report"}
