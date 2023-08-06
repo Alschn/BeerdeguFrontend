@@ -66,7 +66,7 @@ const useLoginMutation = () => {
       }
 
       if (
-        error.response?.status === 400 &&
+        [400, 401].includes(error.response?.status as number) &&
         (error.response?.data as { email?: string })?.email
       ) {
         notifications.show({
@@ -77,7 +77,7 @@ const useLoginMutation = () => {
         return;
       }
 
-      if (error.response?.status === 400) {
+      if ([400, 401].includes(error.response?.status as number)) {
         notifications.show({
           title: "Login failed",
           message: "Please check your username and password",
