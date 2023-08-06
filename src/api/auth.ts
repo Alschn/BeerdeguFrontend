@@ -72,3 +72,16 @@ export const googleLogin = (data: GoogleLoginPayload) => {
 export const logout = () => {
   return axiosLocalClient.post<Record<string, never>>("/api/auth/logout");
 };
+
+export interface ChangePasswordPayload {
+  old_password: string;
+  new_password1: string;
+  new_password2: string;
+}
+
+export const changePassword = (payload: ChangePasswordPayload) => {
+  return axiosGatewayClient.post<unknown>(
+    "/api/auth/password/change/",
+    payload
+  );
+};
