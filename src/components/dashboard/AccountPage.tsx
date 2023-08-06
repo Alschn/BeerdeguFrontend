@@ -52,14 +52,14 @@ const AccountDetailsCard = () => {
           label="Username"
           placeholder="Username"
           value={username}
-          disabled
+          readOnly
         />
         <TextInput
           name="email"
           label="Email"
           placeholder="Email"
           value={email}
-          disabled
+          readOnly
         />
       </Stack>
       <Divider my="md" />
