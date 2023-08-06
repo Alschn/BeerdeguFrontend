@@ -129,6 +129,8 @@ const usePasswordChangeMutation = (options?: ChangePasswordMutationOptions) => {
   });
 };
 
+const NEW_PASSWORD_MIN_LENGTH = 6;
+
 const ChangePasswordCard = () => {
   const form = useForm({
     initialValues: {
@@ -182,24 +184,26 @@ const ChangePasswordCard = () => {
             name="new_password1"
             label="New password"
             placeholder="New password"
+            description={`New password must be at least ${NEW_PASSWORD_MIN_LENGTH} characters long`}
             value={form.values.new_password1}
             onChange={(event) =>
               form.setFieldValue("new_password1", event.currentTarget.value)
             }
             error={form.errors.new_password1}
-            minLength={6}
+            minLength={NEW_PASSWORD_MIN_LENGTH}
             required
           />
           <PasswordInput
             name="new_password2"
             label="Confirm new password"
             placeholder="Confirm new password"
+            description={`New password must be at least ${NEW_PASSWORD_MIN_LENGTH} characters long`}
             value={form.values.new_password2}
             onChange={(event) =>
               form.setFieldValue("new_password2", event.currentTarget.value)
             }
             error={form.errors.new_password2}
-            minLength={6}
+            minLength={NEW_PASSWORD_MIN_LENGTH}
             required
           />
           <Center>
