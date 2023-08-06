@@ -238,12 +238,13 @@ export default function HostView() {
     hasNextPage: hasNextPageBeers,
     fetchNextPage: fetchNextPageBeers,
   } = useInfiniteQuery({
-    queryKey: ["beers", debouncedSearch],
-    queryFn: ({ pageParam = 1, queryKey }) => {
-      return getBeers({
+    queryKey: ["beers", { search: debouncedSearch }] as const,
+    queryFn: async ({ pageParam = 1, queryKey }) => {
+      const res = await getBeers({
         page: pageParam as number,
-        search: queryKey[1] as string,
+        ...queryKey[1],
       });
+      return res.data;
     },
     getNextPageParam: getNextPageParam,
     refetchOnWindowFocus: false,
@@ -251,7 +252,7 @@ export default function HostView() {
 
   const results = useMemo(() => {
     if (!beersData || !beersData.pages) return [];
-    return beersData.pages.flatMap((page) => page.data.results);
+    return beersData.pages.flatMap((page) => page.results);
   }, [beersData]);
 
   const beerRemoveMutation = useMutation({
@@ -285,6 +286,7 @@ export default function HostView() {
   };
 
   const handleFetchMoreBeers = async () => {
+    if (!hasNextPageBeers) return;
     await fetchNextPageBeers();
   };
 

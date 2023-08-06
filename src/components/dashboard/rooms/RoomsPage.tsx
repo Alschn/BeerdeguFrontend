@@ -9,19 +9,17 @@ import {
   Select,
   TextInput,
 } from "@mantine/core";
-import { useDebouncedValue, useDidUpdate } from "@mantine/hooks";
+import { useDebouncedValue } from "@mantine/hooks";
 import { useState, type FC, type ChangeEvent, useMemo } from "react";
-import type { Room } from "~/api/types";
+import type { PaginatedResponseData, Room } from "~/api/types";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getNextPageParam } from "~/utils/tanstack-query";
 import { getRooms } from "~/api/rooms";
-import { useIsClient } from "~/hooks/useIsClient";
 import RoomsTable from "../RoomsTable";
 import { IconSearch } from "@tabler/icons-react";
 
 interface RoomsPageProps {
-  initialData: Room[];
-  count: number;
+  initialData: PaginatedResponseData<Room>;
 }
 
 const PAGE_SIZES = [
@@ -31,9 +29,7 @@ const PAGE_SIZES = [
   { value: "100", label: "100" },
 ];
 
-const RoomsPage: FC<RoomsPageProps> = ({ initialData, count }) => {
-  const [filtersChanged, setFiltersChanged] = useState(false);
-
+const RoomsPage: FC<RoomsPageProps> = ({ initialData }) => {
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 500);
   const [pageSize, setPageSize] = useState(10);
@@ -43,29 +39,27 @@ const RoomsPage: FC<RoomsPageProps> = ({ initialData, count }) => {
     queryKey: [
       "rooms",
       { page: page, page_size: pageSize, name__icontains: debouncedSearch },
-    ],
-    queryFn: ({ queryKey }) => {
-      const params = queryKey[1] as object; // todo: cast to proper type
-      return getRooms(params);
+    ] as const,
+    queryFn: async ({ queryKey }) => {
+      const res = await getRooms({ ...queryKey[1] });
+      return res.data;
     },
     staleTime: 30 * 1000,
     getNextPageParam: getNextPageParam,
     refetchOnReconnect: false,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
-    enabled: filtersChanged,
+    initialData: {
+      pages: [initialData],
+      pageParams: ["rooms", { page: 1, page_size: 10 }],
+    },
   });
 
   const data = useMemo(() => {
     if (isFetchingRooms) return [];
-    if (!dataRooms) return initialData;
-    return dataRooms.pages.flatMap((page) => page.data.results) || [];
-  }, [initialData, dataRooms, isFetchingRooms]);
-
-  useDidUpdate(() => {
-    if (filtersChanged) return;
-    setFiltersChanged(true);
-  }, [search, pageSize, page]);
+    if (!dataRooms) return initialData.results;
+    return dataRooms.pages.flatMap((page) => page.results) || [];
+  }, [initialData.results, dataRooms, isFetchingRooms]);
 
   const handleChangeSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearch(e.currentTarget.value);
@@ -80,7 +74,7 @@ const RoomsPage: FC<RoomsPageProps> = ({ initialData, count }) => {
     setPage(value);
   };
 
-  const pagesCount = Math.ceil(count / pageSize);
+  const pagesCount = Math.ceil(initialData.count / pageSize);
 
   // todo: loading state
   // todo: filtering by state, has_password
