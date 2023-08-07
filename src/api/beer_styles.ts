@@ -5,7 +5,7 @@ import type {
   PaginatedResponseData,
 } from "./types";
 
-interface BeerStylesParams extends PageNumberPaginationParams {
+export interface BeerStylesParams extends PageNumberPaginationParams {
   name__icontains?: string;
 }
 

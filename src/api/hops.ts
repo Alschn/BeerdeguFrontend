@@ -5,7 +5,7 @@ import type {
   PaginatedResponseData,
 } from "./types";
 
-interface HopsParams extends PageNumberPaginationParams {
+export interface HopsParams extends PageNumberPaginationParams {
   name__icontains?: string;
   country__icontains?: string;
 }
