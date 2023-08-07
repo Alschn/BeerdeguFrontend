@@ -4,7 +4,6 @@ import {
   Box,
   Collapse,
   ThemeIcon,
-  Text,
   UnstyledButton,
   createStyles,
   rem,
@@ -140,7 +139,12 @@ export function LinksGroup({
 
   if (link && !isExpanded)
     return (
-      <Tooltip label={label} position="right" transitionProps={{ duration: 0 }}>
+      <Tooltip
+        label={label}
+        position="right"
+        transitionProps={{ duration: 0 }}
+        withinPortal
+      >
         <NextLink href={link} key={label}>
           <UnstyledButton
             className={cx(classes.control, {
@@ -166,12 +170,18 @@ export function LinksGroup({
 
   if (!isExpanded)
     return (
-      <Popover position="right-start" offset={-20} closeOnClickOutside>
+      <Popover
+        position="right-start"
+        offset={-20}
+        closeOnClickOutside
+        withinPortal
+      >
         <Popover.Target>
           <Tooltip
             label={label}
             position="right"
             transitionProps={{ duration: 0 }}
+            withinPortal
           >
             <UnstyledButton className={classes.control}>
               <Group position={isExpanded ? "apart" : "center"} spacing={0}>
