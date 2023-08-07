@@ -5,10 +5,11 @@ import type {
   PaginatedResponseData,
 } from "./types";
 
-interface BreweriesParams extends PageNumberPaginationParams {
+export interface BreweriesParams extends PageNumberPaginationParams {
   name__icontains?: string;
   city__icontains?: string;
   country__icontains?: string;
+  search?: string;
 }
 
 export const getBreweries = (params?: BreweriesParams) => {
