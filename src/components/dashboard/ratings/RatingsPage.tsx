@@ -19,6 +19,8 @@ import {
   Group,
   ActionIcon,
   Tooltip,
+  Center,
+  Loader,
 } from "@mantine/core";
 import { IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import {
@@ -27,7 +29,7 @@ import {
   type Rating as RatingType,
 } from "~/api/types";
 import NextLink from "next/link";
-import { useDisclosure } from "@mantine/hooks";
+import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import RatingAddModal from "./RatingAddModal";
 import {
   type InfiniteData,
@@ -42,13 +44,16 @@ import {
   deleteRating,
   updateRating,
   getRatings,
+  type RatingsParams,
 } from "~/api/ratings";
 import { notifications } from "@mantine/notifications";
 import { AxiosError } from "axios";
-import { useMemo, useState } from "react";
+import { type ChangeEvent, useMemo, useState } from "react";
 import RatingDeleteConfirmModal from "./RatingDeleteConfirmModal";
 import RatingUpdateModal from "./RatingUpdateModal";
 import { getNextPageParam } from "~/utils/tanstack-query";
+import SearchInput from "~/components/SearchInput";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const intl = new Intl.DateTimeFormat(undefined, {
   year: "numeric",
@@ -216,6 +221,9 @@ interface RatingsPageProps {
 }
 
 export default function RatingsPage({ initialData }: RatingsPageProps) {
+  const [search, setSearch] = useState("");
+  const [debouncedSearch] = useDebouncedValue(search, 500);
+
   const [selectedRow, setSelectedRow] = useState<RatingType | null>(null);
 
   const [isAddModalOpen, addModalHandlers] = useDisclosure(false);
@@ -224,10 +232,21 @@ export default function RatingsPage({ initialData }: RatingsPageProps) {
 
   const client = useQueryClient();
 
-  const { data: dataRatings } = useInfiniteQuery({
-    queryKey: ["ratings"],
-    queryFn: async ({ pageParam = 1 }) => {
-      const res = await getRatings({ page: pageParam as number });
+  const {
+    data: dataRatings,
+    isLoading: isLoadingRatings,
+    hasNextPage: hasNextPageRatings,
+    fetchNextPage: fetchNextPageRatings,
+  } = useInfiniteQuery({
+    queryKey: [
+      "ratings",
+      { search: debouncedSearch } satisfies RatingsParams,
+    ] as const,
+    queryFn: async ({ pageParam = 1, queryKey }) => {
+      const res = await getRatings({
+        page: pageParam as number,
+        ...queryKey[1],
+      });
       return res.data;
     },
     initialData: {
@@ -348,6 +367,15 @@ export default function RatingsPage({ initialData }: RatingsPageProps) {
     retry: false,
   });
 
+  const handleChangeSearch = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+  };
+
+  const handleFetchNextPage = async () => {
+    if (!hasNextPageRatings) return;
+    await fetchNextPageRatings();
+  };
+
   const handleAdd = (data: CreateRatingPayload) => {
     createMutation.mutate(data);
   };
@@ -406,17 +434,9 @@ export default function RatingsPage({ initialData }: RatingsPageProps) {
           />
         </>
       )}
-
       <Card mb={16}>
-        <Flex justify="end" align="center" gap={16}>
-          {/* <Flex gap={16}>
-            <TextInput placeholder="Search..." />
-            <Select
-              data={[]}
-              placeholder="Ordering"
-              maw={{ base: 150, md: 200 }}
-            />
-          </Flex> */}
+        <Flex justify="space-between" align="center" gap={16}>
+          <SearchInput value={search} onChange={handleChangeSearch} />
           <Button
             leftIcon={<IconPlus size="1rem" />}
             onClick={addModalHandlers.open}
@@ -425,16 +445,30 @@ export default function RatingsPage({ initialData }: RatingsPageProps) {
           </Button>
         </Flex>
       </Card>
-      <Flex direction="column" gap={16}>
-        {ratings.map((rating) => (
-          <RatingCard
-            rating={rating}
-            key={`rating-${rating.id}`}
-            onEdit={handleOpenUpdateModal}
-            onDelete={handleOpenDeleteModal}
-          />
-        ))}
-      </Flex>
+      <InfiniteScroll
+        dataLength={initialData.count}
+        next={handleFetchNextPage}
+        hasMore={Boolean(hasNextPageRatings)}
+        loader={<></>}
+        scrollThreshold={0.95}
+        scrollableTarget="ratings-container"
+      >
+        <Flex direction="column" gap={16} mb={16} id="ratings-container">
+          {ratings.map((rating) => (
+            <RatingCard
+              rating={rating}
+              key={`rating-${rating.id}`}
+              onEdit={handleOpenUpdateModal}
+              onDelete={handleOpenDeleteModal}
+            />
+          ))}
+        </Flex>
+      </InfiniteScroll>
+      {isLoadingRatings && (
+        <Center py="lg">
+          <Loader size="lg" />
+        </Center>
+      )}
     </Container>
   );
 }
