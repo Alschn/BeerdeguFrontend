@@ -15,7 +15,8 @@ import {
   IconDatabaseSearch,
   IconDeviceDesktopAnalytics,
   IconGauge,
-  IconSettings,
+  // IconSettings,
+  IconBeer,
   IconUser,
   IconX,
 } from "@tabler/icons-react";
@@ -26,6 +27,7 @@ import type { FC } from "react";
 
 const links = [
   { icon: IconGauge, label: "Dashboard", link: "/dashboard" },
+  { icon: IconBeer, label: "Your Ratings", link: "/dashboard/ratings" },
   {
     icon: IconDeviceDesktopAnalytics,
     label: "Rooms",
@@ -48,7 +50,7 @@ const links = [
     initiallyOpened: true,
   },
   { icon: IconUser, label: "Account", link: "/dashboard/account" },
-  { icon: IconSettings, label: "Settings", link: "/dashboard/settings" },
+  // { icon: IconSettings, label: "Settings", link: "/dashboard/settings" },
 ];
 
 const useStyles = createStyles((theme) => ({
