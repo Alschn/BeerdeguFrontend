@@ -97,6 +97,8 @@ export interface BeerStyleEmbedded {
 }
 
 export interface BeerSimplified {
+  id: number;
+  image: string | null;
   name: string;
   brewery: string;
   style: string;
@@ -153,6 +155,38 @@ export interface BreweryDetail {
   country: string;
   established: string;
   description: string;
+}
+
+type BeerInRating = BeerSimplified;
+
+export interface Rating {
+  id: number;
+  added_by: User;
+  beer: BeerInRating;
+  room: Room;
+  color: string | null;
+  foam: string | null;
+  smell: string | null;
+  taste: string | null;
+  opinion: string | null;
+  note: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RatingDetail {
+  id: number;
+  added_by: User;
+  beer: BeerDetail;
+  room: Room;
+  color: string | null;
+  foam: string | null;
+  smell: string | null;
+  taste: string | null;
+  opinion: string | null;
+  note: number | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export const WebsocketConnectionState = {
