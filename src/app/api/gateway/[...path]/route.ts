@@ -5,7 +5,10 @@ import { env } from "~/env.mjs";
 /*
  * This is a proxy route that forwards requests to the API server.
  */
-async function handler(req: NextRequest): Promise<NextResponse<unknown>> {
+async function handler(
+  req: NextRequest,
+  _res: NextResponse
+): Promise<NextResponse<unknown> | Response> {
   if (!req.nextUrl.pathname.startsWith("/api/gateway")) {
     return NextResponse.json({ error: "Invalid proxy url" }, { status: 404 });
   }
@@ -61,6 +64,15 @@ async function handler(req: NextRequest): Promise<NextResponse<unknown>> {
       // binary data e.g file responses
       data = await r.blob();
     }
+
+    // NextResponse does not support 204 No Content (XD)
+    // https://github.com/vercel/next.js/discussions/51475
+    if (r.status === 204) {
+      return new Response(null, {
+        status: 204,
+      });
+    }
+
     return new NextResponse(data, resMeta);
   } catch (e) {
     // parsing error
