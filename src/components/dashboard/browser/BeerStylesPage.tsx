@@ -45,7 +45,7 @@ export default function BeerStylesPage({ initialData }: BeerStylesPageProps) {
 
   const { isLoading: isLoadingBeerStyles, data: dataBeerStyles } =
     useInfiniteQuery({
-      queryKey: ["hops", filters] as const,
+      queryKey: ["beer_styles", filters] as const,
       queryFn: async ({ queryKey }) => {
         const res = await getBeerStyles(queryKey[1]);
         return res.data;
