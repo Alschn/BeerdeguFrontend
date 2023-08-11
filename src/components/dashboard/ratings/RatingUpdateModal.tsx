@@ -3,7 +3,6 @@ import {
   Modal,
   Stack,
   type ModalProps,
-  TextInput,
   Textarea,
   Select,
   Flex,
@@ -30,6 +29,8 @@ const NOTES = [
   { value: "9", label: "9" },
   { value: "10", label: "10" },
 ].reverse();
+
+const MAX_INPUT_LENGTH = 300;
 
 interface RatingUpdateModalProps extends Omit<ModalProps, "onSubmit"> {
   rating: Rating;
@@ -113,6 +114,7 @@ export default function RatingUpdateModal({
             onChange={(event) =>
               form.setFieldValue("color", event.currentTarget.value)
             }
+            maxLength={MAX_INPUT_LENGTH}
             required
           />
           <Textarea
@@ -123,6 +125,7 @@ export default function RatingUpdateModal({
             onChange={(event) =>
               form.setFieldValue("foam", event.currentTarget.value)
             }
+            maxLength={MAX_INPUT_LENGTH}
             required
           />
           <Textarea
@@ -133,6 +136,7 @@ export default function RatingUpdateModal({
             onChange={(event) =>
               form.setFieldValue("smell", event.currentTarget.value)
             }
+            maxLength={MAX_INPUT_LENGTH}
             required
           />
           <Textarea
@@ -143,6 +147,7 @@ export default function RatingUpdateModal({
             onChange={(event) =>
               form.setFieldValue("taste", event.currentTarget.value)
             }
+            maxLength={MAX_INPUT_LENGTH}
             required
           />
           <Textarea
@@ -154,6 +159,7 @@ export default function RatingUpdateModal({
               form.setFieldValue("opinion", event.currentTarget.value)
             }
             minRows={3}
+            maxLength={MAX_INPUT_LENGTH}
             required
           />
           <Select
