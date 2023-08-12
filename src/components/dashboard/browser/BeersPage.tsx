@@ -4,19 +4,15 @@ import {
   Box,
   Button,
   Card,
-  CardSection,
   Center,
-  Divider,
   Flex,
   Grid,
   Group,
-  Image,
   Loader,
   MultiSelect,
   RangeSlider,
   Text,
-  TextInput,
-  createStyles,
+  TextInput
 } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -30,18 +26,19 @@ import {
 import { AxiosError } from "axios";
 import { useMemo, useState, type ChangeEvent } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { type BeerStylesParams, getBeerStyles } from "~/api/beer_styles";
+import { getBeerStyles, type BeerStylesParams } from "~/api/beer_styles";
 import {
   createBeer,
   getBeers,
   type BeerCreatePayload,
   type BeersParams,
 } from "~/api/beers";
-import { type BreweriesParams, getBreweries } from "~/api/breweries";
-import { type HopsParams, getHops } from "~/api/hops";
+import { getBreweries, type BreweriesParams } from "~/api/breweries";
+import { getHops, type HopsParams } from "~/api/hops";
 import type { Beer, PaginatedResponseData } from "~/api/types";
 import { getNextPageParam } from "~/utils/tanstack-query";
 import BeerAddModal from "./BeerAddModal";
+import BeerCard from "./BeerCard";
 
 interface BeersPageProps {
   initialData: PaginatedResponseData<Beer>;
@@ -80,7 +77,10 @@ export default function BeersPage({ initialData }: BeersPageProps) {
   const { isLoading: isLoadingBreweries, data: dataBreweries } = useQuery({
     queryKey: [
       "breweries",
-      { search: debouncedBreweriesSearch, page_size: 50 } satisfies BreweriesParams,
+      {
+        search: debouncedBreweriesSearch,
+        page_size: 50,
+      } satisfies BreweriesParams,
     ] as const,
     queryFn: async ({ queryKey }) => {
       const res = await getBreweries({ ...queryKey[1] });
@@ -93,7 +93,10 @@ export default function BeersPage({ initialData }: BeersPageProps) {
   const { isLoading: isLoadingBeerStyles, data: dataBeerStyles } = useQuery({
     queryKey: [
       "beer_styles",
-      { name__icontains: debouncedBeerStylesSearch, page_size: 50 } satisfies BeerStylesParams,
+      {
+        name__icontains: debouncedBeerStylesSearch,
+        page_size: 50,
+      } satisfies BeerStylesParams,
     ] as const,
     queryFn: async ({ queryKey }) => {
       const res = await getBeerStyles({ ...queryKey[1] });
@@ -104,7 +107,13 @@ export default function BeersPage({ initialData }: BeersPageProps) {
   });
 
   const { isLoading: isLoadingHops, data: dataHops } = useQuery({
-    queryKey: ["hops", { name__icontains: debouncedHopsSearch, page_size: 50 } satisfies HopsParams] as const,
+    queryKey: [
+      "hops",
+      {
+        name__icontains: debouncedHopsSearch,
+        page_size: 50,
+      } satisfies HopsParams,
+    ] as const,
     queryFn: async ({ queryKey }) => {
       const res = await getHops({ ...queryKey[1] });
       return res.data;
@@ -396,53 +405,5 @@ export default function BeersPage({ initialData }: BeersPageProps) {
         </Grid>
       </InfiniteScroll>
     </>
-  );
-}
-
-const useStyles = createStyles((theme) => ({
-  card: {
-    height: "100%",
-    cursor: "pointer",
-    transition: "box-shadow 50ms ease",
-
-    "&:hover": {
-      boxShadow: theme.shadows.sm,
-    },
-  },
-}));
-
-function BeerCard({ beer }: { beer: Beer }) {
-  const { classes } = useStyles();
-
-  return (
-    <Card
-      className={classes.card}
-      component="article"
-      id={`beer-${beer.id}-card`}
-    >
-      <CardSection p="lg" component="header">
-        <Image
-          src={beer.image}
-          alt={beer.name}
-          height={200}
-          fit="contain"
-          withPlaceholder
-        />
-      </CardSection>
-      <Box component="section">
-        <Text size="lg" fw={600} align="center">
-          {beer.name}
-        </Text>
-        <Text size="md" align="center">
-          {beer.style?.name}
-        </Text>
-        <Text align="center">{beer.brewery.name}</Text>
-        <Group position="center">
-          <Text size="sm">{beer.percentage}%</Text>
-          <Divider orientation="vertical" />
-          <Text size="sm">{beer.volume_ml}ml</Text>
-        </Group>
-      </Box>
-    </Card>
   );
 }
