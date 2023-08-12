@@ -79,7 +79,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
       "breweries",
       {
         search: debouncedBreweriesSearch,
-        page_size: 50,
+        page_size: 25,
       } satisfies BreweriesParams,
     ] as const,
     queryFn: async ({ queryKey }) => {
@@ -95,7 +95,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
       "beer_styles",
       {
         name__icontains: debouncedBeerStylesSearch,
-        page_size: 50,
+        page_size: 25,
       } satisfies BeerStylesParams,
     ] as const,
     queryFn: async ({ queryKey }) => {
@@ -111,7 +111,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
       "hops",
       {
         name__icontains: debouncedHopsSearch,
-        page_size: 50,
+        page_size: 25,
       } satisfies HopsParams,
     ] as const,
     queryFn: async ({ queryKey }) => {

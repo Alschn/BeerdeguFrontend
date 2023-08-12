@@ -80,7 +80,10 @@ export default function BeerAddModal({
   const { data: dataBreweries, isLoading: isLoadingBreweries } = useQuery({
     queryKey: [
       "breweries",
-      { search: debouncedBreweriesSearch } satisfies BreweriesParams,
+      {
+        search: debouncedBreweriesSearch,
+        page_size: 25,
+      } satisfies BreweriesParams,
     ] as const,
     queryFn: async ({ pageParam = 1, queryKey }) => {
       const res = await getBreweries({
@@ -91,13 +94,16 @@ export default function BeerAddModal({
     },
     staleTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
-    enabled: opened
+    enabled: opened,
   });
 
   const { data: dataBeerStyles, isLoading: isLoadingBeerStyles } = useQuery({
     queryKey: [
       "beer_styles",
-      { name__icontains: debouncedBeerStylesSearch } satisfies BeerStylesParams,
+      {
+        name__icontains: debouncedBeerStylesSearch,
+        page_size: 25,
+      } satisfies BeerStylesParams,
     ] as const,
     queryFn: async ({ pageParam = 1, queryKey }) => {
       const res = await getBeerStyles({
@@ -108,13 +114,16 @@ export default function BeerAddModal({
     },
     staleTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
-    enabled: opened
+    enabled: opened,
   });
 
   const { data: dataHops, isLoading: isLoadingHops } = useQuery({
     queryKey: [
       "hops",
-      { name__icontains: debouncedHopsSearch } satisfies HopsParams,
+      {
+        name__icontains: debouncedHopsSearch,
+        page_size: 25,
+      } satisfies HopsParams,
     ] as const,
     queryFn: async ({ pageParam = 1, queryKey }) => {
       const res = await getHops({
@@ -125,7 +134,7 @@ export default function BeerAddModal({
     },
     staleTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
-    enabled: opened
+    enabled: opened,
   });
 
   const breweriesOptions = useMemo(() => {
