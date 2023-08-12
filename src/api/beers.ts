@@ -1,4 +1,4 @@
-import { axiosPublicClient } from "./AxiosClient";
+import { axiosGatewayClient, axiosPublicClient } from "./AxiosClient";
 import type { Beer, PaginatedResponseData } from "./types";
 
 export type BeersParams = {
@@ -34,4 +34,22 @@ export const getBeers = (params?: BeersParams) => {
   return axiosPublicClient.get<PaginatedResponseData<Beer>>("/api/beers/", {
     params,
   });
+};
+
+export interface BeerCreatePayload {
+  name: string;
+  brewery: number;
+  style: number;
+  percentage: number;
+  volume_ml: number;
+  hop_rate: number | null;
+  extract: number | null;
+  IBU: number | null;
+  image: string | null;
+  description: string;
+  hops: number[];
+}
+
+export const createBeer = (payload: BeerCreatePayload) => {
+  return axiosGatewayClient.post<Beer>("/api/beers/", payload);
 };
