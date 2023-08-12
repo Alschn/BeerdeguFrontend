@@ -39,9 +39,6 @@ const useStyles = createStyles((theme, { isOpen }: { isOpen: boolean }) => ({
       backgroundColor:
         theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
     },
-    [theme.fn.smallerThan("xs")]: {
-      display: "none",
-    },
   },
   userActive: {
     backgroundColor:
