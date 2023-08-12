@@ -50,7 +50,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ children }) => {
               ? theme.colors.dark[8]
               : theme.colors.gray[0],
           [theme.fn.smallerThan(theme.breakpoints.sm)]: {
-            padding: "calc(50px + 0.5rem) 0.5rem 0.5rem 0.5rem"
+            padding: "calc(50px + 1rem) 0.5rem 0.5rem 0.5rem"
           },
           [theme.fn.largerThan(theme.breakpoints.sm)]: {
             paddingTop: "1rem",
@@ -117,7 +117,7 @@ function HeaderBar({
   );
 
   return (
-    <Flex justify="space-between" align="center">
+    <Flex justify="space-between" align="center" mb={16}>
       <DashboardBreadcrumbs />
       <Group
         sx={{
