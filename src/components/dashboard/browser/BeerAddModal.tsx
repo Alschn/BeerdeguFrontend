@@ -19,7 +19,7 @@ import { useForm } from "@mantine/form";
 import { useDebouncedValue } from "@mantine/hooks";
 import { IconUpload } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getBeerStyles, type BeerStylesParams } from "~/api/beer_styles";
 import type { BeerCreatePayload } from "~/api/beers";
 import { getBreweries, type BreweriesParams } from "~/api/breweries";
@@ -91,6 +91,7 @@ export default function BeerAddModal({
     },
     staleTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
+    enabled: opened
   });
 
   const { data: dataBeerStyles, isLoading: isLoadingBeerStyles } = useQuery({
@@ -107,6 +108,7 @@ export default function BeerAddModal({
     },
     staleTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
+    enabled: opened
   });
 
   const { data: dataHops, isLoading: isLoadingHops } = useQuery({
@@ -123,6 +125,7 @@ export default function BeerAddModal({
     },
     staleTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
+    enabled: opened
   });
 
   const breweriesOptions = useMemo(() => {
@@ -169,6 +172,16 @@ export default function BeerAddModal({
     } satisfies BeerCreatePayload;
     onSubmit(payload);
   };
+
+  useEffect(() => {
+    if (!opened) {
+      form.reset();
+      setBreweriesSearch("");
+      setBeerStylesSearch("");
+      setHopsSearch("");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opened]);
 
   return (
     <Modal
