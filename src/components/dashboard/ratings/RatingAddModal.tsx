@@ -26,6 +26,7 @@ import {
 } from "react";
 import { type BeersParams, getBeers } from "~/api/beers";
 import { type CreateRatingPayload } from "~/api/ratings";
+import BeerRowItem from "./BeerRowItem";
 
 const NOTES = [
   { value: "1", label: "1" },
@@ -65,27 +66,12 @@ interface BeerSelectItemProps extends ComponentPropsWithoutRef<"div"> {
 const BeerSelectItem = forwardRef<HTMLDivElement, BeerSelectItemProps>(
   ({ image, label, description, badge, ...rest }: BeerSelectItemProps, ref) => (
     <div ref={ref} {...rest}>
-      <Group noWrap>
-        <Avatar
-          src={image}
-          alt={label}
-          size={64}
-          imageProps={{
-            style: {
-              objectFit: "contain",
-            },
-          }}
-        >
-          <IconBottle size="1.5rem" />
-        </Avatar>
-        <div>
-          <Text size="sm">{label}</Text>
-          <Text size="xs" opacity={0.65}>
-            {description}
-          </Text>
-          <Badge size="xs">{badge}</Badge>
-        </div>
-      </Group>
+      <BeerRowItem
+        image={image}
+        label={label}
+        description={description}
+        badge={badge}
+      />
     </div>
   )
 );
