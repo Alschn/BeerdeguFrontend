@@ -70,6 +70,7 @@ export default function RatingsPage({ initialData }: RatingsPageProps) {
       pages: [initialData],
       pageParams: [1],
     },
+    initialDataUpdatedAt: new Date().getTime(),
     refetchOnWindowFocus: false,
     getNextPageParam: getNextPageParam,
   });

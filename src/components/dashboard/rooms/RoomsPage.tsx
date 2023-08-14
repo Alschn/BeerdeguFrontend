@@ -45,7 +45,6 @@ const RoomsPage: FC<RoomsPageProps> = ({ initialData }) => {
       const res = await getRooms({ ...queryKey[1] });
       return res.data;
     },
-    staleTime: 30 * 1000,
     getNextPageParam: getNextPageParam,
     refetchOnReconnect: false,
     refetchOnMount: false,
@@ -54,7 +53,7 @@ const RoomsPage: FC<RoomsPageProps> = ({ initialData }) => {
       pages: [initialData],
       pageParams: [1],
     },
-    initialDataUpdatedAt: new Date().getTime() - 30 * 1000,
+    initialDataUpdatedAt: new Date().getTime(),
   });
 
   const data = useMemo(() => {

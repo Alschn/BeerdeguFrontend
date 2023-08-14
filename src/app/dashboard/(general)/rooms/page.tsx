@@ -15,9 +15,6 @@ export default async function DashboardRoomsPage() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${access?.value || ""}`,
       },
-      next: {
-        revalidate: 30,
-      },
     }
   );
   const data = (await r.json()) as PaginatedResponseData<Room>;
