@@ -1,18 +1,30 @@
-'use client';
+"use client";
 
-import { CacheProvider } from '@emotion/react';
-import { type ColorScheme, ColorSchemeProvider, MantineProvider, useEmotionCache } from '@mantine/core';
+import { CacheProvider } from "@emotion/react";
+import {
+  type ColorScheme,
+  ColorSchemeProvider,
+  MantineProvider,
+  useEmotionCache,
+  type MantineThemeOverride,
+} from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
-import { setCookie } from 'cookies-next';
-import { useServerInsertedHTML } from 'next/navigation';
-import { type FC, type ReactNode, useState } from 'react';
+import { ModalsProvider } from "@mantine/modals";
+import { setCookie } from "cookies-next";
+import { useServerInsertedHTML } from "next/navigation";
+import { type FC, type ReactNode, useState } from "react";
+
+const LIGHT_MODE_BACKGROUND = "var(--mantine-color-white)";
+const DARK_MODE_BACKGROUND = "var(--mantine-color-dark-7)";
+const LIGHT_MODE_COLOR = "var(--mantine-color-black)";
+const DARK_MODE_COLOR = "var(--mantine-color-dark-0)";
 
 function setBodyTheme(nextColorScheme: string) {
-  if (typeof document === 'undefined') return;
+  if (typeof document === "undefined") return;
   document.body.style.background =
-    nextColorScheme === 'light' ? 'var(--mantine-color-white)' : 'var(--mantine-color-dark-7)';
+    nextColorScheme === "light" ? LIGHT_MODE_BACKGROUND : DARK_MODE_BACKGROUND;
   document.body.style.color =
-    nextColorScheme === 'light' ? 'var(--mantine-color-black)' : 'var(--mantine-color-dark-0)';
+    nextColorScheme === "light" ? LIGHT_MODE_COLOR : DARK_MODE_COLOR;
 }
 
 interface RootStyleRegistryProps {
@@ -20,14 +32,12 @@ interface RootStyleRegistryProps {
   scheme?: string;
 }
 
-const RootStyleRegistry: FC<RootStyleRegistryProps> = (
-  {
-    children,
-    scheme,
-  }
-) => {
+const RootStyleRegistry: FC<RootStyleRegistryProps> = ({
+  children,
+  scheme,
+}) => {
   const [colorScheme, setColorScheme] = useState<ColorScheme>(() => {
-    const validScheme = (scheme ?? 'light') as ColorScheme;
+    const validScheme = (scheme ?? "light") as ColorScheme;
     setBodyTheme(validScheme);
     return validScheme;
   });
@@ -37,26 +47,42 @@ const RootStyleRegistry: FC<RootStyleRegistryProps> = (
 
   useServerInsertedHTML(() => (
     <style
-      data-emotion={`${cache.key} ${Object.keys(cache.inserted).join(' ')}`}
+      data-emotion={`${cache.key} ${Object.keys(cache.inserted).join(" ")}`}
       dangerouslySetInnerHTML={{
-        __html: Object.values(cache.inserted).join(' '),
+        __html: Object.values(cache.inserted).join(" "),
       }}
     />
   ));
 
   const toggleColorScheme = (value?: ColorScheme) => {
-    const nextColorScheme = value || (colorScheme === 'dark' ? 'light' : 'dark');
+    const nextColorScheme =
+      value || (colorScheme === "dark" ? "light" : "dark");
     setColorScheme(nextColorScheme);
     setBodyTheme(nextColorScheme);
-    setCookie('mantine-color-scheme', nextColorScheme, { maxAge: 60 * 60 * 24 * 30 });
+    setCookie("mantine-color-scheme", nextColorScheme, {
+      maxAge: 60 * 60 * 24 * 30,
+    });
+  };
+
+  // https://mantine.dev/theming/theme-object/
+  const theme: MantineThemeOverride = {
+    colorScheme,
   };
 
   return (
     <CacheProvider value={cache}>
-      <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
-        <MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS withCSSVariables>
-          <Notifications/>
-          {children}
+      <ColorSchemeProvider
+        colorScheme={colorScheme}
+        toggleColorScheme={toggleColorScheme}
+      >
+        <MantineProvider
+          theme={theme}
+          withGlobalStyles
+          withNormalizeCSS
+          withCSSVariables
+        >
+          <Notifications position="top-right" />
+          <ModalsProvider>{children}</ModalsProvider>
         </MantineProvider>
       </ColorSchemeProvider>
     </CacheProvider>

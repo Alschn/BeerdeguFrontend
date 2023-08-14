@@ -7,21 +7,20 @@
 import bundleAnalyzer from "@next/bundle-analyzer";
 
 const withBundleAnalyzer = bundleAnalyzer({
-	enabled: process.env.ANALYZE === 'true',
+  enabled: process.env.ANALYZE === "true",
 });
 
 /** @type {import("next").NextConfig} */
 const config = {
-	reactStrictMode: true,
-	experimental: {
-		appDir: true,
-	},
-
-	/**
-	 * If you have the "experimental: { appDir: true }" setting enabled, then you
-	 * must comment the below `i18n` config out.
-	 *
-	 * @see https://github.com/vercel/next.js/issues/41980
-	 */
+  reactStrictMode: true,
+  typescript: {
+    ignoreBuildErrors: process.env.IGNORE_BUILD_ERRORS === "true",
+  },
+  /**
+   * If you have the "experimental: { appDir: true }" setting enabled, then you
+   * must comment the below `i18n` config out.
+   *
+   * @see https://github.com/vercel/next.js/issues/41980
+   */
 };
 export default withBundleAnalyzer(config);
