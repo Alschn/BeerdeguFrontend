@@ -52,7 +52,7 @@ async function handler(
   try {
     let data;
     const contentType = r.headers.get("Content-Type");
-    const resMeta = { status: r.status, headers: r.headers };
+    const resMeta = { status: r.status };
     if (contentType === "application/json") {
       data = (await r.json()) as unknown;
       return NextResponse.json(data, resMeta);
