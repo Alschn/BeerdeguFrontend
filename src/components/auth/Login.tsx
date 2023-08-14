@@ -53,7 +53,11 @@ const useLoginMutation = () => {
         color: "green",
       });
       router.refresh();
-      router.push(next || "/");
+      let nextPath = next;
+      if (next?.startsWith('/auth/login')) {
+        nextPath = '/';
+      }
+      router.push(nextPath || "/");
     },
     onError: (error) => {
       if (!(error instanceof AxiosError) || error?.response?.status === 500) {
