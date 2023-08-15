@@ -127,16 +127,30 @@ export interface HopDetail {
   description: string;
 }
 
+type NumberRangeField = {
+  // decimals are returned as strings
+  lower: string;
+  upper: string;
+  bounds: "[)";
+};
+
 export interface BeerStyle {
   id: number;
   name: string;
+  known_as: string | null;
+  country: string;
   description: string;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface BeerStyleDetail {
-  id: number;
-  name: string;
-  description: string;
+export interface BeerStyleDetail extends BeerStyle {
+  serving_temperature_range: NumberRangeField | null;
+  abv_range: NumberRangeField | null;
+  color_range: NumberRangeField | null;
+  bitterness_range: NumberRangeField | null;
+  original_gravity_range: NumberRangeField | null;
+  final_gravity_range: NumberRangeField | null;
 }
 
 export interface Brewery {
@@ -144,8 +158,12 @@ export interface Brewery {
   name: string;
   city: string;
   country: string;
-  established: string;
+  year_established: number | null;
+  image: string | null;
+  website: string | null;
   description: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface BreweryDetail {
@@ -214,7 +232,7 @@ export interface BeerObject {
   description: string | null;
   brewery: string;
   style: string;
-  hops: unknown[];
+  hops: number[];
 }
 
 export interface SimplifiedBeerObject {
@@ -254,7 +272,7 @@ export const Commands = {
 export type CommandType = (typeof Commands)[keyof typeof Commands];
 
 export interface WebsocketMessage {
-  data: unknown | UserObject[]; // todo: type every command with its content
+  data: unknown; // todo: type every command with its content
   command: CommandType;
   timestamp: string;
 }

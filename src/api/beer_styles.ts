@@ -6,6 +6,7 @@ import type {
 } from "./types";
 
 export interface BeerStylesParams extends PageNumberPaginationParams {
+  search?: string;
   name__icontains?: string;
 }
 
