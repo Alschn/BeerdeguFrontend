@@ -20,6 +20,10 @@ const columns = [
   columnHelper.accessor("name", {
     header: "Name",
   }),
+  columnHelper.accessor("country", {
+    header: "Country",
+    cell: (info) => info.getValue() || "-",
+  }),
   columnHelper.accessor("description", {
     header: "Description",
     cell: (info) => info.getValue() || "-",
