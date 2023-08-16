@@ -79,7 +79,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
       "breweries",
       {
         search: debouncedBreweriesSearch,
-        page_size: 25,
+        page_size: 50,
       } satisfies BreweriesParams,
     ] as const,
     queryFn: async ({ queryKey }) => {
@@ -95,7 +95,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
       "beer_styles",
       {
         name__icontains: debouncedBeerStylesSearch,
-        page_size: 25,
+        page_size: 50,
       } satisfies BeerStylesParams,
     ] as const,
     queryFn: async ({ queryKey }) => {
@@ -111,7 +111,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
       "hops",
       {
         name__icontains: debouncedHopsSearch,
-        page_size: 25,
+        page_size: 50,
       } satisfies HopsParams,
     ] as const,
     queryFn: async ({ queryKey }) => {
@@ -249,7 +249,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
             label="Breweries"
             placeholder="Select breweries"
             nothingFound="No breweries found"
-            limit={30}
+            limit={50}
             maxDropdownHeight={200}
             w={{ base: 200, lg: 300 }}
             dropdownPosition="bottom"
@@ -267,7 +267,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
             label="Beer styles"
             placeholder="Select beer styles"
             nothingFound="No beer styles found"
-            limit={30}
+            limit={50}
             maxDropdownHeight={200}
             dropdownPosition="bottom"
             w={{ base: 200, lg: 300 }}
@@ -285,7 +285,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
             label="Hops"
             placeholder="Select hops"
             nothingFound="No hops found"
-            limit={30}
+            limit={50}
             maxDropdownHeight={200}
             dropdownPosition="bottom"
             w={{ base: 200, lg: 300 }}

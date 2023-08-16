@@ -5,17 +5,13 @@ import {
   Textarea,
   Select,
   Button,
-  Group,
-  Avatar,
   Text,
   Loader,
   Flex,
-  Badge,
   ScrollArea,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDebouncedValue } from "@mantine/hooks";
-import { IconBottle } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import {
   type ComponentPropsWithoutRef,
@@ -89,7 +85,7 @@ export default function RatingAddModal({
   const beersQuery = useQuery({
     queryKey: [
       "beers",
-      { search: debouncedBeerSearch, page_size: 20 } satisfies BeersParams,
+      { search: debouncedBeerSearch, page_size: 50 } satisfies BeersParams,
     ] as const,
     queryFn: async ({ queryKey }) => {
       const res = await getBeers(queryKey[1]);

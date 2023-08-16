@@ -82,7 +82,7 @@ export default function BeerAddModal({
       "breweries",
       {
         search: debouncedBreweriesSearch,
-        page_size: 25,
+        page_size: 50,
       } satisfies BreweriesParams,
     ] as const,
     queryFn: async ({ pageParam = 1, queryKey }) => {
@@ -102,7 +102,7 @@ export default function BeerAddModal({
       "beer_styles",
       {
         name__icontains: debouncedBeerStylesSearch,
-        page_size: 25,
+        page_size: 50,
       } satisfies BeerStylesParams,
     ] as const,
     queryFn: async ({ pageParam = 1, queryKey }) => {
@@ -122,7 +122,7 @@ export default function BeerAddModal({
       "hops",
       {
         name__icontains: debouncedHopsSearch,
-        page_size: 25,
+        page_size: 50,
       } satisfies HopsParams,
     ] as const,
     queryFn: async ({ pageParam = 1, queryKey }) => {
@@ -223,7 +223,7 @@ export default function BeerAddModal({
             label="Brewery"
             placeholder="Select brewery"
             nothingFound="No breweries found"
-            limit={30}
+            limit={50}
             value={form.values.brewery}
             onChange={(value) => form.setFieldValue("brewery", value)}
             searchValue={breweriesSearch}
@@ -231,6 +231,7 @@ export default function BeerAddModal({
             disabled={isLoadingBreweries}
             searchable
             clearable
+            required
           />
           <Select
             data={beerStylesOptions}
@@ -238,7 +239,7 @@ export default function BeerAddModal({
             label="Beer style"
             placeholder="Select beer style"
             nothingFound="No beer styles found"
-            limit={30}
+            limit={50}
             value={form.values.style}
             onChange={(value) => form.setFieldValue("style", value)}
             searchValue={beerStylesSearch}
@@ -246,6 +247,7 @@ export default function BeerAddModal({
             disabled={isLoadingBeerStyles}
             searchable
             clearable
+            required
           />
           <MultiSelect
             data={hopsOptions}
@@ -253,7 +255,7 @@ export default function BeerAddModal({
             label="Hops"
             placeholder="Select hops"
             nothingFound="No hops found"
-            limit={30}
+            limit={50}
             value={form.values.hops}
             onChange={(values) => form.setFieldValue("hops", values)}
             searchValue={hopsSearch}
