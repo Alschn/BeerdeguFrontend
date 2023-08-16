@@ -246,7 +246,7 @@ const HomeHeader = ({ height }: HomeHeaderProps) => {
   useEffect(() => {
     closeDrawer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname])
+  }, [pathname]);
 
   return (
     <>
@@ -284,12 +284,7 @@ const HomeHeader = ({ height }: HomeHeaderProps) => {
             <ColorModeToggle />
             {/* <LanguagePicker lang="en" /> */}
             {user ? (
-              <UserMenu
-                user={{
-                  name: user.username,
-                  image: "",
-                }}
-              />
+              <UserMenu user={user} />
             ) : (
               <>
                 <NextLink href={`/auth/login`}>
@@ -336,7 +331,7 @@ const HomeHeader = ({ height }: HomeHeaderProps) => {
         padding="md"
         title={
           <NextLink href="/">
-            <BeerdeguLogo/>
+            <BeerdeguLogo />
           </NextLink>
         }
         className={classes.hiddenDesktop}

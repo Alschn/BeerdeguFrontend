@@ -1,30 +1,31 @@
 import {
   Avatar,
-  createStyles,
   Group,
   Menu,
-  type MenuProps,
   Text,
   UnstyledButton,
+  createStyles,
+  type MenuProps,
 } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import {
   IconChevronDown,
   IconDashboard,
+  // IconSettings,
+  // IconHeart,
+  // IconMessage,
+  // IconStar,
+  IconDeviceDesktopAnalytics,
   IconHome,
   IconLogout,
-  IconSettings,
-  IconHeart,
-  IconMessage,
-  IconStar,
-  IconDeviceDesktopAnalytics,
 } from "@tabler/icons-react";
-import { type FC } from "react";
-import NextLink from "next/link";
-import { useDisclosure } from "@mantine/hooks";
 import { useMutation } from "@tanstack/react-query";
+import NextLink from "next/link";
 import { useRouter } from "next/navigation";
-import { notifications } from "@mantine/notifications";
+import { type FC } from "react";
 import { logout } from "~/api/auth";
+import type { User } from "~/api/types";
 
 const useStyles = createStyles((theme, { isOpen }: { isOpen: boolean }) => ({
   user: {
@@ -51,10 +52,7 @@ const useStyles = createStyles((theme, { isOpen }: { isOpen: boolean }) => ({
 }));
 
 interface UserMenuProps extends MenuProps {
-  user: {
-    name: string;
-    image: string;
-  };
+  user: User;
 }
 
 const useLogoutMutation = () => {
@@ -80,33 +78,40 @@ const useLogoutMutation = () => {
 };
 
 const UserMenu: FC<UserMenuProps> = ({ user, ...rest }) => {
-  const [userMenuOpened, { close: closeUserMenu, open: openUserMenu }] =
-    useDisclosure();
-  const { classes, cx, theme } = useStyles({ isOpen: userMenuOpened });
+  const [isMenuOpen, { close: closeMenu, open: openMenu }] = useDisclosure();
+  const { classes, cx, theme } = useStyles({ isOpen: isMenuOpen });
+
   const mutation = useLogoutMutation();
 
-  const handleLogout = () => {
-    mutation.mutate();
-  };
+  const handleLogout = () => mutation.mutate();
 
   return (
     <Menu
       width={260}
       position="bottom-end"
       transitionProps={{ transition: "pop-top-right" }}
-      onClose={closeUserMenu}
-      onOpen={openUserMenu}
+      onClose={closeMenu}
+      onOpen={openMenu}
       withinPortal
       {...rest}
     >
       <Menu.Target>
         <UnstyledButton
-          className={cx(classes.user, { [classes.userActive]: userMenuOpened })}
+          className={cx(classes.user, { [classes.userActive]: isMenuOpen })}
         >
           <Group spacing={7}>
-            <Avatar src={user.image} alt={user.name} radius="xl" size={20} />
+            <Avatar
+              // todo: change when image is available
+              src={undefined}
+              alt={user.username}
+              radius="xl"
+              size={"1.5rem"}
+              color="cyan"
+            >
+              {user.username.at(0) ?? null}
+            </Avatar>
             <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
-              {user.name}
+              {user.username}
             </Text>
             <IconChevronDown
               size="1rem"
