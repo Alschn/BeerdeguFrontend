@@ -6,7 +6,7 @@ const LOGIN_URL = "/auth/login/";
 function AuthRoutesMiddleware(request: NextRequest) {
   const access = request.cookies.get(ACCESS_TOKEN_KEY);
 
-  if (access?.value && request.nextUrl.pathname !== LOGIN_URL) {
+  if (access?.value && !request.nextUrl.pathname.startsWith("/auth/login")) {
     // access token already present - user is already logged in
     // redirect them back to where they came from
     return NextResponse.redirect(
@@ -23,21 +23,40 @@ function RedirectNextMiddleware(request: NextRequest) {
 }
 
 async function RefreshTokenMiddleware(request: NextRequest) {
+  console.debug("Refreshing token...");
+  const refresh = request.cookies.get(REFRESH_TOKEN_KEY);
+  const refreshUrl = new URL(`/api/auth/refresh/`, request.url);
+
   try {
     // try to refresh access token
-    const res = await fetch(`/auth/token/refresh/`, {
+    const res = await fetch(refreshUrl, {
       method: "POST",
+      body: JSON.stringify({ refresh: refresh?.value }),
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
     // refresh token was missing / invalid
     if (!res.ok) {
-      return NextResponse.redirect(new URL(LOGIN_URL, request.url));
+      const json = (await res.json()) as unknown;
+      console.debug("Refresh token is invalid or expired", {
+        status: res.status,
+        json: json,
+      });
+      const response = NextResponse.redirect(new URL(LOGIN_URL, request.url));
+      // clear refresh token cookie
+      response.cookies.set(REFRESH_TOKEN_KEY, "", { maxAge: 0 });
+      return response;
     }
+    console.debug("Access token successfully refreshed");
+    const data = (await res.json()) as { access: string };
+    const response = NextResponse.next();
+    response.cookies.set(ACCESS_TOKEN_KEY, data.access);
     // successfully refreshed token (cookies were set by api route)
-    return NextResponse.next();
+    return response;
   } catch (error) {
+    console.debug("Error refreshing token", error);
     // network or parsing error
-    return NextResponse.redirect(new URL(LOGIN_URL, request.url));
+    return NextResponse.next();
   }
 }
 
@@ -58,20 +77,19 @@ export async function middleware(request: NextRequest) {
   // todo: handle loops, some not trivial edge cases
   // maybe compose middlewares - make them sequential
 
+  const refresh = request.cookies.get(REFRESH_TOKEN_KEY);
+  const access = request.cookies.get(ACCESS_TOKEN_KEY);
+
+  if (refresh?.value && !access?.value) {
+    return await RefreshTokenMiddleware(request);
+  }
+
   if (request.nextUrl.pathname.startsWith("/auth")) {
     return AuthRoutesMiddleware(request);
   }
 
   if (request.nextUrl.searchParams.has("next")) {
     return RedirectNextMiddleware(request);
-  }
-
-  const refresh = request.cookies.get(REFRESH_TOKEN_KEY);
-  const access = request.cookies.get(ACCESS_TOKEN_KEY);
-
-  // anywhere else - has refresh token but no access token
-  if (refresh?.value && !access?.value) {
-    return await RefreshTokenMiddleware(request);
   }
 
   if (request.nextUrl.pathname.startsWith("/dashboard")) {
