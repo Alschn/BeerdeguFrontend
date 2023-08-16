@@ -378,7 +378,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
         </Flex>
       </Card>
       <InfiniteScroll
-        dataLength={initialData.count}
+        dataLength={results.length}
         next={handleFetchMoreBeers}
         hasMore={Boolean(hasNextPageBeers)}
         loader={

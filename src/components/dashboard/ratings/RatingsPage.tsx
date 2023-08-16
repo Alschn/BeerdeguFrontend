@@ -264,10 +264,14 @@ export default function RatingsPage({ initialData }: RatingsPageProps) {
         </Flex>
       </Card>
       <InfiniteScroll
-        dataLength={initialData.count}
+        dataLength={ratings.length}
         next={handleFetchNextPage}
         hasMore={Boolean(hasNextPageRatings)}
-        loader={<></>}
+        loader={
+          <Center mt={16}>
+            <Loader />
+          </Center>
+        }
         scrollThreshold={0.95}
         scrollableTarget="ratings-container"
       >
