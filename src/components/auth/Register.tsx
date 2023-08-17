@@ -21,6 +21,16 @@ import { notifications } from "@mantine/notifications";
 import GoogleButton from "../GoogleButton";
 import { type RegisterPayload, register, getGoogleAuthUrl } from "~/api/auth";
 
+function extractErrors(error: AxiosError) {
+  // todo: extract to separate file as a util function
+  if (!error.response) return;
+  const data = error.response.data as Record<string, string[]>;
+  return Object.values(data).reduce<string>(
+    (acc, value) => (acc += `${value.join(", ")} `),
+    ""
+  );
+}
+
 const useRegisterMutation = () => {
   return useMutation({
     mutationFn: (data: RegisterPayload) => register(data),
@@ -32,17 +42,29 @@ const useRegisterMutation = () => {
       });
     },
     onError: (error) => {
-      if (error instanceof AxiosError) {
+      if (!(error instanceof AxiosError)) {
         notifications.show({
-          title: "Failed to create account",
-          message: "Make sure you entered correct data",
+          title: "Something went wrong",
+          message: "Try again later...",
           color: "red",
         });
         return;
       }
+
+      if (error.response?.status === 400) {
+        const messages = extractErrors(error);
+        notifications.show({
+          title: "Fix errors in the form to proceed",
+          message: messages || "Make sure you entered correct data",
+          color: "red",
+          autoClose: 5000,
+        });
+        return;
+      }
+
       notifications.show({
-        title: "Something went wrong",
-        message: "Try again later...",
+        title: "Failed to create an account",
+        message: "Make sure you entered correct data!",
         color: "red",
       });
     },
@@ -67,7 +89,7 @@ const useGoogleLoginInitMutation = () => {
   });
 };
 
-const MIN_PASSWORD_LENGTH = 6;
+const MIN_PASSWORD_LENGTH = 8;
 
 export function RegisterForm(props: PaperProps) {
   const form = useForm({
@@ -156,8 +178,10 @@ export function RegisterForm(props: PaperProps) {
             }
             error={
               form.errors.password &&
-              `"Password should include at least ${MIN_PASSWORD_LENGTH} characters"`
+              `Password should include at least ${MIN_PASSWORD_LENGTH} characters`
             }
+            description={`Password should include at least ${MIN_PASSWORD_LENGTH} characters`}
+            minLength={MIN_PASSWORD_LENGTH}
             radius="md"
           />
           <PasswordInput
@@ -172,6 +196,8 @@ export function RegisterForm(props: PaperProps) {
               form.errors.password &&
               `Password should include at least ${MIN_PASSWORD_LENGTH} characters`
             }
+            description={`Password should include at least ${MIN_PASSWORD_LENGTH} characters`}
+            minLength={MIN_PASSWORD_LENGTH}
             radius="md"
           />
         </Stack>
