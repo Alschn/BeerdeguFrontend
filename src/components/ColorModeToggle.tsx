@@ -29,20 +29,20 @@ const ColorModeToggle: FC<ColorModeToggleProps> = ({ iconProps, ...rest }) => {
   return (
     <ActionIcon
       onClick={() => toggleColorScheme()}
-      size={40}
+      size={44}
       sx={(theme) => ({
         backgroundColor:
-          theme.colorScheme === "dark"
-            ? theme.colors.dark[6]
-            : theme.colors.gray[1],
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[6]
+          : theme.colors.gray[0],
         color:
           theme.colorScheme === "dark"
             ? theme.colors.yellow[4]
             : theme.colors.blue[6],
-        "&:hover": {
-          backgroundColor:
-            theme.colorScheme === "dark" ? theme.colors.dark[7] : "white",
-        },
+            "&:hover": {
+              backgroundColor:
+                theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
+            },
       })}
       {...rest}
     >
