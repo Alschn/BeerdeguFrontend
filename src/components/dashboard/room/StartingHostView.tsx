@@ -15,6 +15,7 @@ import {
   Divider,
   Button,
   Stack,
+  Badge,
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
@@ -29,7 +30,7 @@ import type { Beer, BeerObject } from "~/api/types";
 import { useRoom } from "~/components/context/room";
 import { getNextPageParam } from "~/utils/tanstack-query";
 
-const BeerDetailsModalBody = ({ beer }: { beer: Beer }) => {
+export const BeerDetailsModalBody = ({ beer }: { beer: Beer }) => {
   return (
     <Stack spacing={8}>
       <Center>
@@ -53,13 +54,13 @@ const BeerDetailsModalBody = ({ beer }: { beer: Beer }) => {
           <Text display="inline-block" weight={600}>
             Brewery:
           </Text>{" "}
-          <Text display="inline-block">{beer.brewery.name}</Text>
+          <Text display="inline-block">{beer.brewery?.name || "?"}</Text>
         </Box>
         <Box>
           <Text display="inline-block" weight={600}>
             Style:
           </Text>{" "}
-          <Text display="inline-block">{beer.style.name}</Text>
+          <Text display="inline-block">{beer.style?.name || "?"}</Text>
         </Box>
         <Box>
           <Text display="inline-block" weight={600}>
@@ -84,6 +85,18 @@ const BeerDetailsModalBody = ({ beer }: { beer: Beer }) => {
             Hoprate [g/L]:
           </Text>{" "}
           <Text display="inline-block">{beer.hop_rate || "-"}</Text>
+        </Box>
+        <Box>
+          <Text display="inline-block" weight={600}>
+            Hops:
+          </Text>{" "}
+          <Box display="inline">
+            {beer.hops.map((hop) => (
+              <Badge key={`badge-hop-${hop.id}1`} mr={4}>
+                {hop.name}
+              </Badge>
+            ))}
+          </Box>
         </Box>
       </Stack>
       <Text>{beer.description}</Text>

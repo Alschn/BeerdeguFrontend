@@ -12,7 +12,7 @@ import {
   MultiSelect,
   RangeSlider,
   Text,
-  TextInput
+  TextInput,
 } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -39,6 +39,8 @@ import type { Beer, PaginatedResponseData } from "~/api/types";
 import { getNextPageParam } from "~/utils/tanstack-query";
 import BeerAddModal from "./BeerAddModal";
 import BeerCard from "./BeerCard";
+import { modals } from "@mantine/modals";
+import { BeerDetailsModalBody } from "../room/StartingHostView";
 
 interface BeersPageProps {
   initialData: PaginatedResponseData<Beer>;
@@ -230,6 +232,18 @@ export default function BeersPage({ initialData }: BeersPageProps) {
     addMutation.mutate(data);
   };
 
+  const openDetailsModal = (beer: Beer) => {
+    modals.open({
+      title: (
+        <Text size="xl" weight={600}>
+          {beer.name}
+        </Text>
+      ),
+      children: <BeerDetailsModalBody beer={beer} />,
+      centered: true,
+    });
+  };
+
   return (
     <>
       <BeerAddModal
@@ -399,7 +413,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
               xl={3}
               key={`beers-beer-${beer.id}`}
             >
-              <BeerCard beer={beer} />
+              <BeerCard beer={beer} onClick={openDetailsModal} />
             </Grid.Col>
           ))}
         </Grid>
