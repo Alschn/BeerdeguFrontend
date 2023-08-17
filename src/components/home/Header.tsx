@@ -288,10 +288,10 @@ const HomeHeader = ({ height }: HomeHeaderProps) => {
             ) : (
               <>
                 <NextLink href={`/auth/login`}>
-                  <Button variant="default">Log in</Button>
+                  <Button variant="default" h={44}>Log in</Button>
                 </NextLink>
                 <NextLink href={`/auth/register`}>
-                  <Button>Sign up</Button>
+                  <Button h={44}>Sign up</Button>
                 </NextLink>
               </>
             )}
@@ -302,8 +302,8 @@ const HomeHeader = ({ height }: HomeHeaderProps) => {
               opened={drawerOpened}
               onClick={toggleDrawer}
               // todo: clean up later
-              h={40}
-              w={40}
+              h={44}
+              w={44}
               sx={{
                 display: "flex",
                 alignItems: "center",
