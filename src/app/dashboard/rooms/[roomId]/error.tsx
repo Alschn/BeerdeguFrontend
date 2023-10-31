@@ -26,7 +26,7 @@ const ErrorLayout = ({title, children}: ErrorLayoutProps) => {
 const UserNotInRoom = () => {
   const params = useParams();
   const { roomId } = params;
-  const roomName = roomId ?? "";
+  const roomName = roomId as string ?? "";
 
   return (
     <ErrorLayout title="User is not in this room...">
