@@ -51,7 +51,7 @@ export const MOCKDATA = [
 ];
 
 interface FeatureProps {
-  icon: React.FC<any>;
+  icon: React.FC<Record<string, unknown>>;
   title: React.ReactNode;
   description: React.ReactNode;
 }
