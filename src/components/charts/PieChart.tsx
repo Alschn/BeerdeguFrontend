@@ -1,9 +1,11 @@
-import { Pie } from "react-chartjs-2";
-import type { ChartProps } from "react-chartjs-2/dist/types";
+import { useMantineColorScheme } from "@mantine/core";
+import { Pie, type ChartProps } from "react-chartjs-2";
 
 interface PieChartProps extends Omit<ChartProps<"pie">, "type"> {}
 
 function PieChart({ options, data, ...props }: PieChartProps) {
+  const { colorScheme } = useMantineColorScheme();
+
   return (
     <Pie
       options={{
@@ -17,8 +19,9 @@ function PieChart({ options, data, ...props }: PieChartProps) {
             labels: {
               font: {
                 size: 12,
-              }
-            }
+              },
+              color: colorScheme === "dark" ? "#fff" : "#000",
+            },
           },
         },
         ...options,
