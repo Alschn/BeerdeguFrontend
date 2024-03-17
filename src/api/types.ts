@@ -281,3 +281,25 @@ export interface ChatMessageObject {
   message: string;
   user: string;
 }
+
+export const BeerPackagings = {
+  BOTTLE: "BOTTLE",
+  CAN: "CAN",
+  KEG: "KEG",
+  DRAUGHT: "DRAUGHT",
+} as const;
+
+export type BeerPackaging =
+  (typeof BeerPackagings)[keyof typeof BeerPackagings];
+
+export interface BeerPurchase {
+  id: number;
+  // todo: add beer object
+  beer: number;
+  sold_to: number;
+  packaging: BeerPackaging;
+  price: number;
+  volume_ml: number;
+  image: string | null;
+  purchased_at: string;
+}
