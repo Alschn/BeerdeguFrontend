@@ -235,6 +235,21 @@ export interface BeerObject {
   hops: number[];
 }
 
+export interface BeerEmbedded {
+  id: number;
+  name: string;
+  description: string;
+  brewery: BreweryEmbedded;
+  style: BeerStyleEmbedded;
+  hops: number[];
+  image: Nullable<string>;
+  percentage: number;
+  volume_ml: number;
+  hop_rate: Nullable<number>;
+  extract: Nullable<number>;
+  IBU: Nullable<number>;
+}
+
 export interface SimplifiedBeerObject {
   name: string;
   brewery: string;
@@ -294,9 +309,8 @@ export type BeerPackaging =
 
 export interface BeerPurchase {
   id: number;
-  // todo: add beer object
-  beer: number;
-  sold_to: number;
+  beer: BeerEmbedded;
+  sold_to: User;
   packaging: BeerPackaging;
   price: number;
   volume_ml: number;
