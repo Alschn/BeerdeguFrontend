@@ -67,6 +67,13 @@ const RootStyleRegistry: FC<RootStyleRegistryProps> = ({
   // https://mantine.dev/theming/theme-object/
   const theme: MantineThemeOverride = {
     colorScheme,
+    // https://v6.mantine.dev/styles/responsive/
+    breakpoints: {
+      // 1921px
+      "2xl": "120.0625em",
+      // 2561px
+      "3xl": "160.0625em",
+    },
   };
 
   return (
