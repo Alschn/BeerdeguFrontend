@@ -235,6 +235,21 @@ export interface BeerObject {
   hops: number[];
 }
 
+export interface BeerEmbedded {
+  id: number;
+  name: string;
+  description: string;
+  brewery: BreweryEmbedded;
+  style: BeerStyleEmbedded;
+  hops: number[];
+  image: Nullable<string>;
+  percentage: number;
+  volume_ml: number;
+  hop_rate: Nullable<number>;
+  extract: Nullable<number>;
+  IBU: Nullable<number>;
+}
+
 export interface SimplifiedBeerObject {
   name: string;
   brewery: string;
@@ -280,4 +295,25 @@ export interface WebsocketMessage {
 export interface ChatMessageObject {
   message: string;
   user: string;
+}
+
+export const BeerPackagings = {
+  BOTTLE: "BOTTLE",
+  CAN: "CAN",
+  KEG: "KEG",
+  DRAUGHT: "DRAUGHT",
+} as const;
+
+export type BeerPackaging =
+  (typeof BeerPackagings)[keyof typeof BeerPackagings];
+
+export interface BeerPurchase {
+  id: number;
+  beer: BeerEmbedded;
+  sold_to: User;
+  packaging: BeerPackaging;
+  price: number;
+  volume_ml: number;
+  image: string | null;
+  purchased_at: string;
 }
