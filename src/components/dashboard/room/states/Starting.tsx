@@ -3,9 +3,11 @@ import { useEffect } from "react";
 import { useRoom } from "~/components/context/room";
 import ParticipantView from "../StartingParticipantView";
 import HostView from "../StartingHostView";
+import { useWebsocketClient } from "~/components/context/websocket";
 
 const Starting = () => {
-  const { isHost, state, sendJsonMessage } = useRoom();
+  const { isHost, state } = useRoom();
+  const { sendJsonMessage } = useWebsocketClient();
 
   useEffect(() => {
     sendJsonMessage({ command: "load_beers" });

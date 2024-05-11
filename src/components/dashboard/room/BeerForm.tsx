@@ -4,6 +4,7 @@ import { type ChangeEvent, useEffect, useReducer } from "react";
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
 import type { UserRatingsObject, WebsocketMessage } from "~/api/types";
 import { useRoom } from "~/components/context/room";
+import { useWebsocketClient } from "~/components/context/websocket";
 
 const FORM_SAVE_INTERVAL_MS = 5_000;
 
@@ -56,12 +57,13 @@ interface BeerFormProps {
 }
 
 const BeerForm = ({ id }: BeerFormProps) => {
-  const { websocketUrl, token } = useRoom();
+  const { token } = useRoom();
+  const { websocketUrl, sendJsonMessage } = useWebsocketClient();
   const [state, dispatch] = useReducer(formReducer, initialState);
 
   const prevState = usePrevious({ ...state, beer_id: id });
 
-  const { sendJsonMessage } = useWebSocket(websocketUrl, {
+  useWebSocket(websocketUrl, {
     queryParams: { token },
     onMessage: (event: MessageEvent<unknown>) => {
       const data = event.data as string;
