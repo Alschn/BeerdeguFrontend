@@ -5,15 +5,11 @@ import {
   useMantineColorScheme,
   type ActionIconProps,
 } from "@mantine/core";
-import {
-  IconMoonStars,
-  IconSun,
-  type IconProps as TablerIconProps
-} from "@tabler/icons-react";
+import { IconMoonStars, IconSun, type IconProps } from "@tabler/icons-react";
 import { type FC } from "react";
 
 interface ColorModeToggleProps extends ActionIconProps {
-  iconProps?: Omit<TablerIconProps, "ref">;
+  iconProps?: Omit<IconProps, "ref">;
 }
 
 const ColorModeToggle: FC<ColorModeToggleProps> = ({ iconProps, ...rest }) => {
