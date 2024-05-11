@@ -10,10 +10,10 @@ import {
   getStylesRef,
   rem,
 } from "@mantine/core";
-import { type Icon, IconChevronRight } from "@tabler/icons-react";
+import { IconChevronRight, type IconProps } from "@tabler/icons-react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, type FunctionComponent } from "react";
 
 const useStyles = createStyles((theme) => ({
   control: {
@@ -78,7 +78,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 interface LinksGroupProps {
-  icon: Icon;
+  icon: FunctionComponent<Omit<IconProps, "ref">>;
   label: string;
   isExpanded: boolean;
   initiallyOpened?: boolean;
