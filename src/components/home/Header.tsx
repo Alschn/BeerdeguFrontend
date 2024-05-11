@@ -6,7 +6,6 @@ import {
   Burger,
   Button,
   Center,
-  Collapse,
   createStyles,
   Divider,
   Drawer,
@@ -31,13 +30,12 @@ import {
   IconNotification,
 } from "@tabler/icons-react";
 import NextLink from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import BeerdeguLogo from "~/components/BeerdeguLogo";
 import ColorModeToggle from "~/components/ColorModeToggle";
-import UserMenu from "~/components/UserMenu";
 import { useAuth } from "~/components/context/auth";
-import LanguagePicker from "../LanguagePicker";
-import { useEffect } from "react";
-import { usePathname } from "next/navigation";
+import UserMenu from "~/components/UserMenu";
 
 const useStyles = createStyles((theme) => ({
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -250,7 +248,13 @@ const HomeHeader = ({ height }: HomeHeaderProps) => {
 
   return (
     <>
-      <Header height={height} px="md" withBorder={false} pos="fixed" zIndex={1}>
+      <Header
+        height={height}
+        px="md"
+        withBorder={false}
+        pos="fixed"
+        zIndex={100}
+      >
         <Group position="apart" align="center" sx={{ height: "100%" }}>
           <NextLink href="/">
             <BeerdeguLogo height={48} />
@@ -288,7 +292,9 @@ const HomeHeader = ({ height }: HomeHeaderProps) => {
             ) : (
               <>
                 <NextLink href={`/auth/login`}>
-                  <Button variant="default" h={44}>Log in</Button>
+                  <Button variant="default" h={44}>
+                    Log in
+                  </Button>
                 </NextLink>
                 <NextLink href={`/auth/register`}>
                   <Button h={44}>Sign up</Button>

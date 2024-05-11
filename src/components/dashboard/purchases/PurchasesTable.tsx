@@ -87,7 +87,7 @@ const useStyles = createStyles((theme) => ({
     "& th": {
       position: "sticky",
       top: 0,
-      zIndex: 100,
+      zIndex: 2,
       backgroundColor:
         theme.colorScheme === "dark" ? theme.colors.dark[6] : "white",
     },
