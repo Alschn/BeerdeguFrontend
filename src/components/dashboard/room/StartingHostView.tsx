@@ -28,6 +28,7 @@ import { getBeers } from "~/api/beers";
 import { addBeerToRoom, removeBeerFromRoom } from "~/api/rooms";
 import type { Beer, BeerObject } from "~/api/types";
 import { useRoom } from "~/components/context/room";
+import { useWebsocketClient } from "~/components/context/websocket";
 import { getNextPageParam } from "~/utils/tanstack-query";
 
 export const BeerDetailsModalBody = ({ beer }: { beer: Beer }) => {
@@ -105,7 +106,8 @@ export const BeerDetailsModalBody = ({ beer }: { beer: Beer }) => {
 };
 
 export function BeerCard({ beer }: { beer: Beer }) {
-  const { beers, sendJsonMessage, roomName } = useRoom();
+  const { beers, roomName } = useRoom();
+  const { sendJsonMessage } = useWebsocketClient();
   const isInRoom = beers.some((b) => b.id === beer.id);
 
   const beerAddMutation = useMutation({
@@ -241,7 +243,8 @@ export function BeerCardListItem({
 }
 
 export default function HostView() {
-  const { beers, roomName, sendJsonMessage } = useRoom();
+  const { beers, roomName } = useRoom();
+  const { sendJsonMessage } = useWebsocketClient();
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 1000);
 

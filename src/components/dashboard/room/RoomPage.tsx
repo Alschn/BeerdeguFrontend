@@ -25,6 +25,7 @@ import Drawer from "./Drawer";
 import { useDisclosure } from "@mantine/hooks";
 import NextLink from "next/link";
 import BeerdeguLogo from "~/components/BeerdeguLogo";
+import { WebsocketClientProvider } from "~/components/context/websocket";
 
 const USER_PING_INTERVAL_MS = 10_000;
 const USERS_FETCH_INTERVAL_MS = 10_000;
@@ -144,8 +145,8 @@ const handleMessage =
           title: `${username} has disconnected`,
           message: `User is no longer active in this room`,
           color: "red.6",
-          autoClose: 2000
-        })
+          autoClose: 2000,
+        });
         return;
       }
       if (parsed.command === Commands.USER_LEAVE) {
@@ -155,7 +156,7 @@ const handleMessage =
           title: `${username} has left the room`,
           message: `User is no longer part of this room`,
           color: "yellow",
-        })
+        });
         return;
       }
       if (parsed.command === Commands.USER_JOIN) {
@@ -165,7 +166,7 @@ const handleMessage =
           title: `${username} has joined the room`,
           message: `User can now participate in this session`,
           color: "indigo",
-        })
+        });
         return;
       }
       dispatch({
@@ -277,12 +278,16 @@ const RoomPage = ({ roomId, isHost, token }: RoomPageProps) => {
           justifyContent: "center",
           height: "100vh",
           flexDirection: "column",
-          gap: 16
+          gap: 16,
         }}
       >
-        <BeerdeguLogo showText={false} height={100}/>
+        <BeerdeguLogo showText={false} height={100} />
         <Title order={1}>Failed to connect...</Title>
-        <Button color="orange" onClick={() => window.location.reload()} miw={160}>
+        <Button
+          color="orange"
+          onClick={() => window.location.reload()}
+          miw={160}
+        >
           Refresh
         </Button>
         <NextLink href="/dashboard/rooms">
@@ -294,11 +299,13 @@ const RoomPage = ({ roomId, isHost, token }: RoomPageProps) => {
     );
 
   return (
-    <RoomContextProvider value={{ ...state, sendJsonMessage, websocketUrl }}>
-      <Header isDrawerOpen={isDrawerOpen} onDrawerToggle={toggleDrawer} />
-      <Drawer opened={isDrawerOpen} onClose={closeDrawer} />
-      <Main />
-    </RoomContextProvider>
+    <WebsocketClientProvider value={{ sendJsonMessage, websocketUrl }}>
+      <RoomContextProvider value={state}>
+        <Header isDrawerOpen={isDrawerOpen} onDrawerToggle={toggleDrawer} />
+        <Drawer opened={isDrawerOpen} onClose={closeDrawer} />
+        <Main />
+      </RoomContextProvider>
+    </WebsocketClientProvider>
   );
 };
 
