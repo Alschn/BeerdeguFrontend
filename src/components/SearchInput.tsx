@@ -1,8 +1,8 @@
 import { TextInput, type TextInputProps } from "@mantine/core";
-import { IconSearch, type TablerIconsProps } from "@tabler/icons-react";
+import { IconSearch, type IconProps } from "@tabler/icons-react";
 
 type SearchInputProps = Omit<TextInputProps, "icon"> & {
-  iconProps?: TablerIconsProps;
+  iconProps?: Omit<IconProps, "ref">;
 };
 
 export default function SearchInput({
