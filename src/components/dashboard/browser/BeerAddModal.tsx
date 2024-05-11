@@ -268,6 +268,7 @@ export default function BeerAddModal({
           <FileInput
             name="image"
             label="Image"
+            // @ts-expect-error FileInput is incorrectly typed, placeholder works as it should
             placeholder="Upload image"
             valueComponent={FileInputPreviewValueComponent}
             icon={<IconUpload size={rem(14)} />}
