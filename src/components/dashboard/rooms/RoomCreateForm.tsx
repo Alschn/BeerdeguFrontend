@@ -1,25 +1,32 @@
 "use client";
 
 import {
-  Paper,
-  Text,
-  Stack,
-  TextInput,
-  PasswordInput,
-  Flex,
   Button,
+  Flex,
   NumberInput,
+  Paper,
+  PasswordInput,
+  Stack,
+  Text,
+  TextInput,
 } from "@mantine/core";
 import { Form, useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { useMutation } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
-import { type CreateRoomPayload, createRoom } from "~/api/rooms";
+import { APIError, isApiError } from "~/api/errors";
+import { createRoom, type CreateRoomPayload } from "~/api/rooms";
 import { MAX_ROOM_SLOTS, MIN_ROOM_SLOTS } from "~/config";
+
+const ErrorCodes = {
+  NAME_RESTRICTED: "room_name_restricted",
+  UNIQUE: "unique",
+  HOST_ALREADY_HOSTING: "room_host_already_hosting",
+} as const;
 
 const useCreateRoomMutation = () => {
   const router = useRouter();
+
   return useMutation({
     mutationFn: (data: CreateRoomPayload) => createRoom(data),
     onSuccess: (_, variables) => {
@@ -31,15 +38,38 @@ const useCreateRoomMutation = () => {
       router.push(`/dashboard/rooms/${variables.name}/`);
     },
     onError: (error) => {
-      if (!(error instanceof AxiosError)) {
+      if (!isApiError(error)) {
         notifications.show({
-          title: "Error",
-          message: "Something went wrong...",
+          title: "Something went wrong!",
+          message: "Try again later...",
           color: "red",
         });
         return;
       }
-      if ((error?.response?.data as { host?: unknown })?.host) {
+
+      const err = APIError.fromAxiosError(error);
+      const restrictedNameErr = err.getErrorByCode(ErrorCodes.NAME_RESTRICTED);
+      if (restrictedNameErr) {
+        notifications.show({
+          title: "Could not create new room",
+          message: "Room name is restricted!",
+          color: "red",
+        });
+        return;
+      }
+
+      const uniqueNameErr = err.getErrorByCode(ErrorCodes.UNIQUE);
+      if (uniqueNameErr && uniqueNameErr.attr === "name") {
+        notifications.show({
+          title: "Could not create new room",
+          message: "Room name is not unique!",
+          color: "red",
+        });
+        return;
+      }
+
+      const hostErr = err.getErrorByCode(ErrorCodes.HOST_ALREADY_HOSTING);
+      if (hostErr) {
         notifications.show({
           title: "Could not create new room",
           message: "Your are already hosting a room. Finish it first.",
@@ -47,17 +77,10 @@ const useCreateRoomMutation = () => {
         });
         return;
       }
-      if ((error.response?.data as { name?: unknown })?.name) {
-        notifications.show({
-          title: "Could not create new room",
-          message: "Room name is not unique or restricted!",
-          color: "red",
-        });
-        return;
-      }
+
       notifications.show({
-        title: "Unexpected error",
-        message: "Try again later...",
+        title: "Could not create new room",
+        message: "Please check the provided data.",
         color: "red",
       });
     },
