@@ -4,12 +4,12 @@ import { Button, Flex, Paper, PasswordInput, Stack, Text } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { useMutation } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import {
-  type ConfirmResetPasswordPayload,
   confirmResetPassword,
+  type ConfirmResetPasswordPayload,
 } from "~/api/auth";
+import { APIError, isApiError } from "~/api/errors";
 
 const useConfirmResetPasswordMutation = () => {
   const router = useRouter();
@@ -26,18 +26,20 @@ const useConfirmResetPasswordMutation = () => {
       router.push("/auth/login");
     },
     onError: (error) => {
-      if (error instanceof AxiosError) {
+      if (!isApiError(error)) {
         notifications.show({
           title: "Something went wrong",
-          message: "Password reset failed...",
+          message: "Please try again later...",
           color: "red",
         });
         return;
       }
 
+      const _err = APIError.fromAxiosError(error);
+      // todo: handle error messages
       notifications.show({
         title: "Something went wrong",
-        message: "Please try again later...",
+        message: "Password reset failed...",
         color: "red",
       });
     },

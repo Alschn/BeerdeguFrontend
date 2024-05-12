@@ -8,15 +8,13 @@ import { useEffect, useRef } from "react";
 import NextLink from "next/link";
 import { type GoogleLoginPayload, googleLogin } from "~/api/auth";
 
-const GoogleCallback = ({ code }: { code: string }) => {
+const useGoogleLoginMutation = () => {
   const searchParams = useSearchParams();
   const next = searchParams.get("next");
 
-  const mounted = useRef<boolean>(false);
-
   const router = useRouter();
 
-  const mutation = useMutation({
+  return useMutation({
     mutationFn: (data: GoogleLoginPayload) => googleLogin(data),
     onSuccess: () => {
       notifications.show({
@@ -27,8 +25,8 @@ const GoogleCallback = ({ code }: { code: string }) => {
       router.refresh();
       router.push(next || "/");
     },
-    onError: (err) => {
-      console.error(err);
+    onError: (_) => {
+      // todo: handle error messages
       notifications.show({
         title: "Failed to authenticate",
         message: "Please try again later...",
@@ -36,6 +34,13 @@ const GoogleCallback = ({ code }: { code: string }) => {
       });
     },
   });
+};
+
+const GoogleCallback = ({ code }: { code: string }) => {
+  const mounted = useRef<boolean>(false);
+
+  // todo: maybe move this call to server side
+  const mutation = useGoogleLoginMutation();
 
   // try to authenticate user on component mount
   useEffect(() => {

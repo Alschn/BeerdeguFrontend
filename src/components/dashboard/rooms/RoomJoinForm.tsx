@@ -32,7 +32,7 @@ const useRoomJoinMutation = () => {
       });
       router.push(`/dashboard/rooms/${variables.name}/`);
     },
-    onError: () => {
+    onError: (_) => {
       // todo: better error handling
       notifications.show({
         title: "Error",

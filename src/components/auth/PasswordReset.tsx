@@ -1,22 +1,22 @@
 "use client";
 
 import {
-  createStyles,
+  Anchor,
+  Box,
+  Button,
+  Flex,
+  Group,
   Paper,
   Text,
   TextInput,
-  Button,
-  Group,
-  Anchor,
-  Box,
-  Flex,
+  createStyles,
 } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { useMutation } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import NextLink from "next/link";
 import { type FormEvent } from "react";
-import { notifications } from "@mantine/notifications";
-import { type EmailResetPayload, resetPassword } from "~/api/auth";
+import { resetPassword, type EmailResetPayload } from "~/api/auth";
+import { APIError, isApiError } from "~/api/errors";
 
 const useStyles = createStyles((theme) => ({
   title: {
@@ -33,23 +33,25 @@ const usePasswordResetMutation = () => {
     onSuccess: () => {
       notifications.show({
         title: "Email sent",
-        message: "Check your inbox for the reset link",
+        message: "Check your inbox for the reset link.",
         color: "green",
       });
     },
     onError: (error) => {
-      if (error instanceof AxiosError) {
+      if (!isApiError(error)) {
         notifications.show({
-          title: "Email not sent",
-          message: "Please check your email address",
+          title: "Something went wrong",
+          message: "Please try again later...",
           color: "red",
         });
         return;
       }
 
+      const _err = APIError.fromAxiosError(error);
+      // todo: handle error messages
       notifications.show({
-        title: "Something went wrong",
-        message: "Please try again later...",
+        title: "Email could not be sent",
+        message: "Please check your email address.",
         color: "red",
       });
     },

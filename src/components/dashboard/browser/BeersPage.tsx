@@ -15,6 +15,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
+import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
 import {
@@ -23,7 +24,6 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { useMemo, useState, type ChangeEvent } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { getBeerStyles, type BeerStylesParams } from "~/api/beer_styles";
@@ -34,13 +34,13 @@ import {
   type BeersParams,
 } from "~/api/beers";
 import { getBreweries, type BreweriesParams } from "~/api/breweries";
+import { APIError, isApiError } from "~/api/errors";
 import { getHops, type HopsParams } from "~/api/hops";
 import type { Beer, PaginatedResponseData } from "~/api/types";
 import { getNextPageParam } from "~/utils/tanstack-query";
+import { BeerDetailsModalBody } from "../room/StartingHostView";
 import BeerAddModal from "./BeerAddModal";
 import BeerCard from "./BeerCard";
-import { modals } from "@mantine/modals";
-import { BeerDetailsModalBody } from "../room/StartingHostView";
 
 interface BeersPageProps {
   initialData: PaginatedResponseData<Beer>;
@@ -212,7 +212,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
       addModalHandlers.close();
     },
     onError: (error) => {
-      if (!(error instanceof AxiosError)) {
+      if (!isApiError(error)) {
         notifications.show({
           title: "Something went wrong!",
           message: "Try again later...",
@@ -220,6 +220,9 @@ export default function BeersPage({ initialData }: BeersPageProps) {
         });
         return;
       }
+
+      const _err = APIError.fromAxiosError(error);
+      // todo: handle validation errors
       notifications.show({
         title: "Failed to add beer",
         message: "Make sure that provided data is correct",
