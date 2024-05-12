@@ -18,9 +18,9 @@ import NextLink from "next/link";
 import { notifications } from "@mantine/notifications";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import GoogleButton from "../GoogleButton";
 import { type LoginPayload, getGoogleAuthUrl, login } from "~/api/auth";
+import { APIError, isApiError } from "~/api/errors";
 
 const useGoogleLoginInitMutation = () => {
   return useMutation({
@@ -30,7 +30,8 @@ const useGoogleLoginInitMutation = () => {
       // navigate to google auth page
       window.location.href = url;
     },
-    onError: () => {
+    onError: (_) => {
+      // todo: handle error messages
       notifications.show({
         title: "Failed to redirect to Google authorization page",
         message: "Please try again later...",
@@ -38,6 +39,11 @@ const useGoogleLoginInitMutation = () => {
     },
   });
 };
+
+const ErrorCodes = {
+  EMAIL_NOT_VERIFIED: "email_not_verified",
+  NO_ACTIVE_ACCOUNT: "no_active_account",
+} as const;
 
 const useLoginMutation = () => {
   const searchParams = useSearchParams();
@@ -54,13 +60,13 @@ const useLoginMutation = () => {
       });
       router.refresh();
       let nextPath = next;
-      if (next?.startsWith('/auth/login')) {
-        nextPath = '/';
+      if (next?.startsWith("/auth/login")) {
+        nextPath = "/";
       }
       router.push(nextPath || "/");
     },
     onError: (error) => {
-      if (!(error instanceof AxiosError) || error?.response?.status === 500) {
+      if (!isApiError(error) || error?.response?.status === 500) {
         notifications.show({
           title: "Something went wrong",
           message: "Please try again later...",
@@ -69,10 +75,9 @@ const useLoginMutation = () => {
         return;
       }
 
-      if (
-        [400, 401].includes(error.response?.status as number) &&
-        (error.response?.data as { email?: string })?.email
-      ) {
+      const err = APIError.fromAxiosError(error);
+      const emailErr = err.getErrorByCode(ErrorCodes.EMAIL_NOT_VERIFIED);
+      if (emailErr) {
         notifications.show({
           title: "Your email is unverified",
           message: "Please check your email for a verification link.",
@@ -81,10 +86,11 @@ const useLoginMutation = () => {
         return;
       }
 
-      if ([400, 401].includes(error.response?.status as number)) {
+      const validationErr = err.getErrorByCode(ErrorCodes.NO_ACTIVE_ACCOUNT);
+      if (validationErr) {
         notifications.show({
-          title: "Login failed",
-          message: "Please check your username and password",
+          title: "Invalid credentials",
+          message: "Please check your username and password.",
           color: "red",
         });
         return;

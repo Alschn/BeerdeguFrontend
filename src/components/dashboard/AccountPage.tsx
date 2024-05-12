@@ -20,6 +20,7 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { type ChangePasswordPayload, changePassword } from "~/api/auth";
 import { useAuth } from "../context/auth";
+import { APIError, isApiError } from "~/api/errors";
 
 const AccountDetailsCard = () => {
   const { user } = useAuth();
@@ -111,15 +112,17 @@ const usePasswordChangeMutation = (options?: ChangePasswordMutationOptions) => {
       options?.onSuccess?.();
     },
     onError: (error) => {
-      if (!(error instanceof AxiosError)) {
+      if (!isApiError(error)) {
         notifications.show({
-          title: "Something went wrong...",
-          message: "Your password could not be changed",
+          title: "Something went wrong!",
+          message: "Try again later...",
           color: "red",
         });
         return;
       }
 
+      const _err = APIError.fromAxiosError(error);
+      // todo: handle validation errors
       notifications.show({
         title: "Password change failed",
         message: "Make sure you entered correct password",

@@ -67,7 +67,8 @@ const RoomDrawer = ({ opened, onClose }: DrawerProps) => {
       });
       router.push("/dashboard");
     },
-    onError: () => {
+    onError: (_) => {
+      // todo: handle errors
       notifications.show({
         title: "Error",
         message: "Could not leave room",

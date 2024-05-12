@@ -4,32 +4,22 @@ import {
   Anchor,
   Button,
   Divider,
+  Flex,
   Group,
   Paper,
-  type PaperProps,
   PasswordInput,
   Stack,
   Text,
   TextInput,
-  Flex,
+  type PaperProps,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useMutation } from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import NextLink from "next/link";
 import { notifications } from "@mantine/notifications";
+import { useMutation } from "@tanstack/react-query";
+import NextLink from "next/link";
+import { getGoogleAuthUrl, register, type RegisterPayload } from "~/api/auth";
+import { APIError, isApiError } from "~/api/errors";
 import GoogleButton from "../GoogleButton";
-import { type RegisterPayload, register, getGoogleAuthUrl } from "~/api/auth";
-
-function extractErrors(error: AxiosError) {
-  // todo: extract to separate file as a util function
-  if (!error.response) return;
-  const data = error.response.data as Record<string, string[]>;
-  return Object.values(data).reduce<string>(
-    (acc, value) => (acc += `${value.join(", ")} `),
-    ""
-  );
-}
 
 const useRegisterMutation = () => {
   return useMutation({
@@ -42,7 +32,7 @@ const useRegisterMutation = () => {
       });
     },
     onError: (error) => {
-      if (!(error instanceof AxiosError)) {
+      if (!isApiError(error)) {
         notifications.show({
           title: "Something went wrong",
           message: "Try again later...",
@@ -51,22 +41,17 @@ const useRegisterMutation = () => {
         return;
       }
 
-      if (error.response?.status === 400) {
-        const messages = extractErrors(error);
+      const err = APIError.fromAxiosError(error);
+      // todo: improve errors
+      if (err.type === "validation_error") {
         notifications.show({
-          title: "Fix errors in the form to proceed",
-          message: messages || "Make sure you entered correct data",
+          title: "Please correct the following errors:",
+          message: err.details.join(", "),
           color: "red",
           autoClose: 5000,
         });
         return;
       }
-
-      notifications.show({
-        title: "Failed to create an account",
-        message: "Make sure you entered correct data!",
-        color: "red",
-      });
     },
   });
 };
@@ -80,7 +65,8 @@ const useGoogleLoginInitMutation = () => {
       // navigate to google auth page
       window.location.href = url;
     },
-    onError: () => {
+    onError: (_) => {
+      // todo: handle errors
       notifications.show({
         title: "Failed to redirect to Google authorization page",
         message: "Please try again later...",
@@ -102,7 +88,7 @@ export function RegisterForm(props: PaperProps) {
     validate: {
       email: (val) => (/^\S+@\S+$/.test(val) ? null : "Invalid email"),
       password1: (val) =>
-        val.length <= MIN_PASSWORD_LENGTH
+        val.length < MIN_PASSWORD_LENGTH
           ? `Password should include at least ${MIN_PASSWORD_LENGTH} characters`
           : null,
       password2: (val, values) =>

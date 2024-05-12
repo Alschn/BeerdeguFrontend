@@ -25,6 +25,7 @@ import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { type FC } from "react";
 import { logout } from "~/api/auth";
+import { APIError, isApiError } from "~/api/errors";
 import type { User } from "~/api/types";
 
 const useStyles = createStyles((theme, { isOpen }: { isOpen: boolean }) => ({
@@ -67,7 +68,18 @@ const useLogoutMutation = () => {
       router.push("/auth/login");
       router.refresh();
     },
-    onError: () => {
+    onError: (error) => {
+      if (!isApiError(error)) {
+        notifications.show({
+          title: "Something went wrong!",
+          message: "Try again later...",
+          color: "red",
+        });
+        return;
+      }
+
+      const _err = APIError.fromAxiosError(error);
+      // todo: handle error messages
       notifications.show({
         title: "Logout failed",
         message: "Please try again later...",

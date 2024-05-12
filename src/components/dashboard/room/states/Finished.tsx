@@ -59,7 +59,8 @@ const useGenerateReportMutation = (roomName: string) =>
       document.body.removeChild(link);
       URL.revokeObjectURL(href);
     },
-    onError: () => {
+    onError: (_) => {
+      // todo: handle errors
       notifications.show({
         title: "Failed to download report",
         message: "Try again later...",

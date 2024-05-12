@@ -122,7 +122,8 @@ export function BeerCard({ beer }: { beer: Beer }) {
         command: "load_beers",
       });
     },
-    onError: () => {
+    onError: (_) => {
+      // todo: handle errors
       notifications.show({
         title: "Error",
         message: `Beer '${beer.name}' could not be added to the room`,
@@ -283,7 +284,8 @@ export default function HostView() {
         command: "load_beers",
       });
     },
-    onError: () => {
+    onError: (_) => {
+      // todo: handle errors
       notifications.show({
         title: "Error",
         message: "Could not remove beer from room",
