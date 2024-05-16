@@ -1,108 +1,146 @@
 import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  type OnDragEndResponder,
+} from "@hello-pangea/dnd";
+import {
   ActionIcon,
   Box,
+  Button,
   Card,
-  Flex,
+  Center,
+  Divider,
   Grid,
   Group,
-  SimpleGrid,
+  Image,
+  Text,
   TextInput,
   Title,
   Tooltip,
-  Text,
-  Image,
-  Center,
-  Divider,
-  Button,
-  Stack,
-  Badge,
 } from "@mantine/core";
-import { useDebouncedValue } from "@mantine/hooks";
+import { useDebouncedValue, useListState } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
-import { IconInfoCircleFilled, IconTrashX } from "@tabler/icons-react";
+import { IconInfoCircleFilled } from "@tabler/icons-react";
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
-import { type ChangeEvent, useMemo, useState } from "react";
+import {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+} from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { getBeers } from "~/api/beers";
 import { addBeerToRoom, removeBeerFromRoom } from "~/api/rooms";
-import type { Beer, BeerObject } from "~/api/types";
+import type { Beer } from "~/api/types";
 import { useRoom } from "~/components/context/room";
 import { useWebsocketClient } from "~/components/context/websocket";
 import { getNextPageParam } from "~/utils/tanstack-query";
+import BeerCardListItem from "./BeerCardListItem";
+import BeerDetailsModalBody from "./BeerDetailsModalBody";
 
-export const BeerDetailsModalBody = ({ beer }: { beer: Beer }) => {
-  return (
-    <Stack spacing={8}>
-      <Center>
-        <Image
-          src={beer?.image}
-          width={200}
-          height={200}
-          fit="contain"
-          alt={beer.name}
-          withPlaceholder
-        />
-      </Center>
-      <Stack spacing={4}>
-        <Box>
-          <Text display="inline-block" weight={600}>
-            Name:
-          </Text>{" "}
-          <Text display="inline-block">{beer.name}</Text>
-        </Box>
-        <Box>
-          <Text display="inline-block" weight={600}>
-            Brewery:
-          </Text>{" "}
-          <Text display="inline-block">{beer.brewery?.name || "?"}</Text>
-        </Box>
-        <Box>
-          <Text display="inline-block" weight={600}>
-            Style:
-          </Text>{" "}
-          <Text display="inline-block">{beer.style?.name || "?"}</Text>
-        </Box>
-        <Box>
-          <Text display="inline-block" weight={600}>
-            ABV [%]:
-          </Text>{" "}
-          <Text display="inline-block">{beer.percentage}</Text>
-        </Box>
-        <Box>
-          <Text display="inline-block" weight={600}>
-            Extract [°BLG]:
-          </Text>{" "}
-          <Text display="inline-block">{beer.extract || "-"}</Text>
-        </Box>
-        <Box>
-          <Text display="inline-block" weight={600}>
-            Bitterness [IBU]:
-          </Text>{" "}
-          <Text display="inline-block">{beer.IBU || "-"}</Text>
-        </Box>
-        <Box>
-          <Text display="inline-block" weight={600}>
-            Hoprate [g/L]:
-          </Text>{" "}
-          <Text display="inline-block">{beer.hop_rate || "-"}</Text>
-        </Box>
-        <Box>
-          <Text display="inline-block" weight={600}>
-            Hops:
-          </Text>{" "}
-          <Box display="inline">
-            {beer.hops.map((hop) => (
-              <Badge key={`badge-hop-${hop.id}1`} mr={4}>
-                {hop.name}
-              </Badge>
-            ))}
-          </Box>
-        </Box>
-      </Stack>
-      <Text>{beer.description}</Text>
-    </Stack>
-  );
+interface AddBeerToRoomMutationPayload {
+  roomName: string;
+  beerId: number;
+  order?: number;
+}
+
+interface UseAddBeerToRoomMutationOptions {
+  onSuccess?: (
+    data: Beer,
+    variables: AddBeerToRoomMutationPayload,
+    context: unknown
+  ) => void;
+  onError?: (
+    error: unknown,
+    variables: AddBeerToRoomMutationPayload,
+    context: unknown
+  ) => void;
+}
+
+const useAddBeerToRoomMutation = (
+  options?: UseAddBeerToRoomMutationOptions
+) => {
+  return useMutation({
+    mutationFn: async ({
+      roomName,
+      beerId,
+      order,
+    }: AddBeerToRoomMutationPayload) => {
+      const res = await addBeerToRoom(roomName, beerId, order);
+      return res.data;
+    },
+    onSuccess: (data, variables, context) => {
+      if (variables.order === undefined) {
+        notifications.show({
+          title: "Beer added",
+          message: `Beer '${data.name}' has been added to the room.`,
+          color: "green",
+        });
+      }
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      // todo: handle specific errors
+      notifications.show({
+        title: "Error",
+        message: `Beer could not be added to the room.`,
+        color: "red",
+      });
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+interface RemoveBeerFromRoomMutationPayload {
+  roomName: string;
+  beerId: number;
+}
+
+interface UseRemoveBeerFromRoomMutationOptions {
+  onSuccess?: (
+    data: unknown,
+    variables: RemoveBeerFromRoomMutationPayload,
+    context: unknown
+  ) => void;
+  onError?: (
+    error: unknown,
+    variables: RemoveBeerFromRoomMutationPayload,
+    context: unknown
+  ) => void;
+}
+
+const useRemoveBeerFromRoomMutation = (
+  options?: UseRemoveBeerFromRoomMutationOptions
+) => {
+  return useMutation({
+    mutationFn: async ({
+      roomName,
+      beerId,
+    }: RemoveBeerFromRoomMutationPayload) => {
+      const res = await removeBeerFromRoom(roomName, beerId);
+      return res.data;
+    },
+    onSuccess: (data, variables, context) => {
+      notifications.show({
+        title: "Success",
+        message: "Beer removed from room",
+        color: "green",
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      // todo: handle errors
+      notifications.show({
+        title: "Error",
+        message: "Could not remove beer from room",
+        color: "red",
+      });
+      options?.onError?.(error, variables, context);
+    },
+  });
 };
 
 export function BeerCard({ beer }: { beer: Beer }) {
@@ -110,30 +148,16 @@ export function BeerCard({ beer }: { beer: Beer }) {
   const { sendJsonMessage } = useWebsocketClient();
   const isInRoom = beers.some((b) => b.id === beer.id);
 
-  const beerAddMutation = useMutation({
-    mutationFn: () => addBeerToRoom(roomName, beer.id),
+  const beerAddMutation = useAddBeerToRoomMutation({
     onSuccess: () => {
-      notifications.show({
-        title: "Beer added",
-        message: `Beer '${beer.name}' has been added to the room`,
-        color: "green",
-      });
       sendJsonMessage({
         command: "load_beers",
-      });
-    },
-    onError: (_) => {
-      // todo: handle errors
-      notifications.show({
-        title: "Error",
-        message: `Beer '${beer.name}' could not be added to the room`,
-        color: "red",
       });
     },
   });
 
   const handleAddBeer = () => {
-    beerAddMutation.mutate();
+    beerAddMutation.mutate({ beerId: beer.id, roomName });
     beerAddMutation.reset();
   };
 
@@ -192,60 +216,10 @@ export function BeerCard({ beer }: { beer: Beer }) {
   );
 }
 
-export function BeerCardListItem({
-  beer,
-  onRemove,
-  isRemoving,
-}: {
-  beer: BeerObject;
-  onRemove: (beerId: number) => void;
-  isRemoving: boolean;
-}) {
-  return (
-    <Card
-      withBorder
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-      key={`beer-in-room-${beer.id}`}
-    >
-      <Group spacing={16} align="center">
-        <Image
-          height={64}
-          width={64}
-          fit="contain"
-          src={beer.image}
-          alt={beer.name}
-          withPlaceholder
-        />
-        <Box>
-          <Text size="lg" weight={600}>
-            {beer.name}
-          </Text>
-          <Text size="md">{beer.brewery}</Text>
-        </Box>
-      </Group>
-      <Flex align="center">
-        <Tooltip label="Remove beer" position="bottom">
-          <ActionIcon
-            onClick={() => onRemove(beer.id)}
-            color="red"
-            loading={isRemoving}
-          >
-            <IconTrashX />
-          </ActionIcon>
-        </Tooltip>
-      </Flex>
-    </Card>
-  );
-}
-
 export default function HostView() {
   const { beers, roomName } = useRoom();
   const { sendJsonMessage } = useWebsocketClient();
+
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 1000);
 
@@ -272,30 +246,16 @@ export default function HostView() {
     return beersData.pages.flatMap((page) => page.results);
   }, [beersData]);
 
-  const beerRemoveMutation = useMutation({
-    mutationFn: (beerId: number) => removeBeerFromRoom(roomName, beerId),
+  const beerRemoveMutation = useRemoveBeerFromRoomMutation({
     onSuccess: () => {
-      notifications.show({
-        title: "Success",
-        message: "Beer removed from room",
-        color: "green",
-      });
       sendJsonMessage({
         command: "load_beers",
-      });
-    },
-    onError: (_) => {
-      // todo: handle errors
-      notifications.show({
-        title: "Error",
-        message: "Could not remove beer from room",
-        color: "red",
       });
     },
   });
 
   const handleRemoveBeer = (id: number) => {
-    beerRemoveMutation.mutate(id);
+    beerRemoveMutation.mutate({ roomName, beerId: id });
     beerRemoveMutation.reset();
   };
 
@@ -307,6 +267,56 @@ export default function HostView() {
     if (!hasNextPageBeers) return;
     await fetchNextPageBeers();
   };
+
+  const [beersList, handlers] = useListState(beers);
+
+  const beerReorderMutation = useAddBeerToRoomMutation({
+    onSuccess: () => {
+      sendJsonMessage({
+        command: "load_beers",
+      });
+    },
+  });
+
+  const handleOnDragEnd: OnDragEndResponder = useCallback(
+    ({ destination, source }) => {
+      // dropped outside the list, keep item in the same position
+      if (!destination) return;
+      const fromPosition = source.index;
+      const toPosition = destination?.index || 0;
+      // do not reorder if the position did not change
+      if (fromPosition === toPosition) return;
+
+      // optimistic update
+      handlers.reorder({
+        from: fromPosition,
+        to: toPosition,
+      });
+
+      // call the api to update the order
+      void beerReorderMutation
+        .mutateAsync({
+          roomName,
+          beerId: beersList[fromPosition]!.id,
+          order: toPosition,
+        })
+        .catch((_) => {
+          // rollback on error
+          handlers.reorder({
+            from: toPosition,
+            to: fromPosition,
+          });
+        });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [beersList]
+  );
+
+  // keep the client side state in sync with server state
+  useLayoutEffect(() => {
+    handlers.setState(beers);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [beers]);
 
   return (
     <Grid>
@@ -349,16 +359,37 @@ export default function HostView() {
           {"Beers in room:"}
         </Title>
 
-        <SimpleGrid>
-          {beers.map((beer) => (
-            <BeerCardListItem
-              beer={beer}
-              isRemoving={beerRemoveMutation.isLoading}
-              onRemove={handleRemoveBeer}
-              key={`beer-in-room-${beer.id}`}
-            />
-          ))}
-        </SimpleGrid>
+        <DragDropContext onDragEnd={handleOnDragEnd}>
+          <Droppable droppableId="beers-list" direction="vertical">
+            {(provided) => (
+              <Box {...provided.droppableProps} ref={provided.innerRef}>
+                {beersList.map((item, index) => {
+                  return (
+                    <Draggable
+                      key={`beer-${item.id}`}
+                      draggableId={`beer-${item.id}`}
+                      index={index}
+                    >
+                      {(provided, snapshot) => (
+                        <BeerCardListItem
+                          beer={item}
+                          onRemove={handleRemoveBeer}
+                          isRemoving={beerRemoveMutation.isLoading}
+                          isDragging={snapshot.isDragging}
+                          withHandle
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          ref={provided.innerRef}
+                        />
+                      )}
+                    </Draggable>
+                  );
+                })}
+                {provided.placeholder}
+              </Box>
+            )}
+          </Droppable>
+        </DragDropContext>
       </Grid.Col>
     </Grid>
   );

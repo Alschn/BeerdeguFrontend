@@ -21,7 +21,7 @@ Backend repo: https://github.com/Alschn/Beerdegu
 - `zod` - validating schemas
 - `react-infinite-scroll-component` - infinite scroll
 - `react-use-websocket` - websocket client
-- `react-beautiful-dnd` - drag n' drop
+- `@hello-pangea/dnd` - drag n' drop
 - `axios` + fetch - http clients
 - `jsonwebtoken` - decoding json web tokens
 - `msw`, `playwright-msw` - mocking http requests in tests
