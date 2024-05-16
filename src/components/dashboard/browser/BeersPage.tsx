@@ -38,7 +38,7 @@ import { APIError, isApiError } from "~/api/errors";
 import { getHops, type HopsParams } from "~/api/hops";
 import type { Beer, PaginatedResponseData } from "~/api/types";
 import { getNextPageParam } from "~/utils/tanstack-query";
-import { BeerDetailsModalBody } from "../room/StartingHostView";
+import BeerDetailsModalBody from "../room/BeerDetailsModalBody";
 import BeerAddModal from "./BeerAddModal";
 import BeerCard from "./BeerCard";
 
