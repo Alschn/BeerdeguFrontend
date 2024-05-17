@@ -68,6 +68,7 @@
     "playwright-msw": "^3.0.1",
     "start-server-and-test": "^2.0.3",
     "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   },
   "ct3aMetadata": {
