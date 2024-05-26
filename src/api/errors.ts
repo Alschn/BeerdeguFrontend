@@ -37,7 +37,7 @@ export interface ApiError {
 
 interface ApiErrorResponse {
   type: ApiErrorType;
-  errors: ApiError[];
+  errors: [ApiError, ...ApiError[]];
 }
 
 /**
