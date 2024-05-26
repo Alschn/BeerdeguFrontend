@@ -16,7 +16,7 @@ import {
 import { useForm } from "@mantine/form";
 import NextLink from "next/link";
 import { notifications } from "@mantine/notifications";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import GoogleButton from "../GoogleButton";
 import { type LoginPayload, getGoogleAuthUrl, login } from "~/api/auth";
@@ -48,7 +48,6 @@ const ErrorCodes = {
 const useLoginMutation = () => {
   const searchParams = useSearchParams();
   const next = searchParams.get("next");
-  const router = useRouter();
 
   return useMutation({
     mutationFn: (data: LoginPayload) => login(data),
@@ -58,12 +57,13 @@ const useLoginMutation = () => {
         message: "Redirecting to homepage...",
         color: "green",
       });
-      router.refresh();
       let nextPath = next;
       if (next?.startsWith("/auth/login")) {
         nextPath = "/";
       }
-      router.push(nextPath || "/");
+      // force "hard" navigation instead of router.refresh to discard previous client state;
+      // this way the layout will contain content that is not stale (user dropdown instead of auth buttons)
+      window.location.replace(nextPath || "/");
     },
     onError: (error) => {
       if (!isApiError(error) || error?.response?.status === 500) {
