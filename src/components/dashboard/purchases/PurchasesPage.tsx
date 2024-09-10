@@ -11,7 +11,11 @@ import {
 } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { type ChangeEvent, useMemo, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import type { BeerPurchase, PaginatedResponseData } from "~/api/types";
@@ -22,6 +26,10 @@ import {
 import { getNextPageParam } from "~/utils/tanstack-query";
 import PurchasesTable from "./PurchasesTable";
 import SearchInput from "~/components/SearchInput";
+import PurchaseAddModal from "./PurchaseAddModal";
+import { notifications } from "@mantine/notifications";
+import { APIError, isApiError } from "~/api/errors";
+import { createPurchase, type CreatePurchasePayload } from "~/api/purchases";
 
 interface PurchasesPageProps {
   initialData: PaginatedResponseData<BeerPurchase>;
@@ -53,7 +61,9 @@ export default function PurchasesPage({ initialData }: PurchasesPageProps) {
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 500);
 
-  const [_isAddModalOpen, addModalHandlers] = useDisclosure(false);
+  const [isAddModalOpen, addModalHandlers] = useDisclosure(false);
+
+  const client = useQueryClient();
 
   // todo: add filters
   // existing: (packaging, price, volume, purchased_at)
@@ -83,10 +93,54 @@ export default function PurchasesPage({ initialData }: PurchasesPageProps) {
     setSearch(e.target.value);
   };
 
-  // todo: add filters inputs, multistep modal
+  const createMutation = useMutation({
+    mutationFn: (data: CreatePurchasePayload) => createPurchase(data),
+    onSuccess: async () => {
+      notifications.show({
+        title: "Success!",
+        message: "Purchase has been added",
+        color: "green",
+      });
+      addModalHandlers.close();
+      await client.invalidateQueries(["purchases"]);
+    },
+    onError: (error) => {
+      if (!isApiError(error)) {
+        notifications.show({
+          title: "Something went wrong!",
+          message: "Try again later...",
+          color: "red",
+        });
+        return;
+      }
+
+      const _err = APIError.fromAxiosError(error);
+
+      // todo: handle validation errors
+      console.error(_err);
+
+      notifications.show({
+        title: "Could not create a new purchase!",
+        message: "Please check if your data is correct.",
+        color: "red",
+      });
+    },
+  });
+
+  const handleSubmit = (values: CreatePurchasePayload) => {
+    createMutation.mutate(values);
+  };
+
+  // todo: add filters inputs, make modal multistep
 
   return (
     <Box>
+      <PurchaseAddModal
+        opened={isAddModalOpen}
+        onClose={addModalHandlers.close}
+        onSubmit={handleSubmit}
+        isLoading={createMutation.isLoading}
+      />
       <InfiniteScroll
         dataLength={purchases.length}
         next={handleFetchNextPage}
@@ -101,7 +155,6 @@ export default function PurchasesPage({ initialData }: PurchasesPageProps) {
             <Button
               leftIcon={<IconPlus size="1rem" />}
               onClick={addModalHandlers.open}
-              disabled
             >
               Add purchase
             </Button>
