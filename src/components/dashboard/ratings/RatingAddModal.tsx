@@ -13,16 +13,10 @@ import {
 import { useForm } from "@mantine/form";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
-import {
-  type ComponentPropsWithoutRef,
-  forwardRef,
-  useMemo,
-  useState,
-  useLayoutEffect,
-} from "react";
+import { useMemo, useState, useLayoutEffect } from "react";
 import { type BeersParams, getBeers } from "~/api/beers";
 import { type CreateRatingPayload } from "~/api/ratings";
-import BeerRowItem from "./BeerRowItem";
+import BeerSelectItem from "./BeerSelectItem";
 
 const NOTES = [
   { value: "1", label: "1" },
@@ -51,27 +45,6 @@ type CreateRatingForm = {
   opinion: string;
   note: string | null;
 };
-
-interface BeerSelectItemProps extends ComponentPropsWithoutRef<"div"> {
-  image: string | null;
-  label: string;
-  description: string;
-  badge: string;
-}
-
-const BeerSelectItem = forwardRef<HTMLDivElement, BeerSelectItemProps>(
-  ({ image, label, description, badge, ...rest }: BeerSelectItemProps, ref) => (
-    <div ref={ref} {...rest}>
-      <BeerRowItem
-        image={image}
-        label={label}
-        description={description}
-        badge={badge}
-      />
-    </div>
-  )
-);
-BeerSelectItem.displayName = "BeerSelectItem";
 
 export default function RatingAddModal({
   opened,
