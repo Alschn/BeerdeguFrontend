@@ -10,60 +10,28 @@ import {
   Loader,
 } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import { IconPlus } from "@tabler/icons-react";
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
 import { type ChangeEvent, useMemo, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import type { BeerPurchase, PaginatedResponseData } from "~/api/types";
-import {
-  getPurchases,
-  type PurchasesParams,
-} from "~/app/dashboard/(general)/purchases/actions";
-import { getNextPageParam } from "~/utils/tanstack-query";
-import PurchasesTable from "./PurchasesTable";
-import SearchInput from "~/components/SearchInput";
-import PurchaseAddModal from "./PurchaseAddModal";
-import { notifications } from "@mantine/notifications";
 import { APIError, isApiError } from "~/api/errors";
-import { createPurchase, type CreatePurchasePayload } from "~/api/purchases";
+import { type CreatePurchasePayload } from "~/api/purchases";
+import type { BeerPurchase, PaginatedResponseData } from "~/api/types";
+import { type PurchasesParams } from "~/app/dashboard/(general)/purchases/actions";
+import SearchInput from "~/components/SearchInput";
+import { usePurchaseCreateMutation, usePurchasesQuery } from "~/hooks/api";
+import PurchaseAddModal from "./PurchaseAddModal";
+import PurchasesTable from "./PurchasesTable";
 
 interface PurchasesPageProps {
   initialData: PaginatedResponseData<BeerPurchase>;
 }
-
-const usePurchasesQuery = (
-  initialData: PaginatedResponseData<BeerPurchase>,
-  params: PurchasesParams
-) => {
-  return useInfiniteQuery({
-    queryKey: ["purchases", params] as const,
-    queryFn: async ({ pageParam = 1, queryKey }) => {
-      return await getPurchases({
-        page: pageParam as number,
-        ...queryKey[1],
-      });
-    },
-    initialData: {
-      pages: [initialData],
-      pageParams: [1],
-    },
-    initialDataUpdatedAt: new Date().getTime(),
-    refetchOnWindowFocus: false,
-    getNextPageParam: getNextPageParam,
-  });
-};
 
 export default function PurchasesPage({ initialData }: PurchasesPageProps) {
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 500);
 
   const [isAddModalOpen, addModalHandlers] = useDisclosure(false);
-
-  const client = useQueryClient();
 
   // todo: add filters
   // existing: (packaging, price, volume, purchased_at)
@@ -78,7 +46,7 @@ export default function PurchasesPage({ initialData }: PurchasesPageProps) {
     isLoading: isLoadingPurchases,
     hasNextPage: hasNextPagePurchases,
     fetchNextPage: fetchNextPagePurchases,
-  } = usePurchasesQuery(initialData, purchasesParams);
+  } = usePurchasesQuery({ initialData, params: purchasesParams });
 
   const purchases = useMemo(() => {
     return dataPurchases?.pages.flatMap((page) => page.results) || [];
@@ -93,16 +61,14 @@ export default function PurchasesPage({ initialData }: PurchasesPageProps) {
     setSearch(e.target.value);
   };
 
-  const createMutation = useMutation({
-    mutationFn: (data: CreatePurchasePayload) => createPurchase(data),
-    onSuccess: async () => {
+  const createMutation = usePurchaseCreateMutation({
+    onSuccess: () => {
       notifications.show({
         title: "Success!",
         message: "Purchase has been added",
         color: "green",
       });
       addModalHandlers.close();
-      await client.invalidateQueries(["purchases"]);
     },
     onError: (error) => {
       if (!isApiError(error)) {
@@ -115,7 +81,6 @@ export default function PurchasesPage({ initialData }: PurchasesPageProps) {
       }
 
       const _err = APIError.fromAxiosError(error);
-
       // todo: handle validation errors
       console.error(_err);
 

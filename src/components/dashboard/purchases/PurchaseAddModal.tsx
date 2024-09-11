@@ -3,24 +3,23 @@
 import {
   Button,
   Flex,
-  Modal,
-  Text,
-  type ModalProps,
-  ScrollArea,
   Loader,
+  Modal,
+  type ModalProps,
+  NumberInput,
+  ScrollArea,
   Select,
   Stack,
-  NumberInput,
+  Text,
 } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useDebouncedValue } from "@mantine/hooks";
-import { useQuery } from "@tanstack/react-query";
 import { useLayoutEffect, useMemo, useState } from "react";
-import { type BeersParams, getBeers } from "~/api/beers";
-import BeerSelectItem from "../ratings/BeerSelectItem";
-import { BeerPackagings } from "~/api/types";
 import { type CreatePurchasePayload } from "~/api/purchases";
+import { BeerPackagings } from "~/api/types";
+import { useBeersPage } from "~/hooks/api/beers";
+import BeerSelectItem from "../ratings/BeerSelectItem";
 
 interface PurchaseAddModalProps extends Omit<ModalProps, "onSubmit"> {
   onSubmit: (data: CreatePurchasePayload) => void;
@@ -49,14 +48,10 @@ const PurchaseAddModal = ({
   const [beerSearch, setBeerSearch] = useState("");
   const [debouncedBeerSearch] = useDebouncedValue(beerSearch, 500);
 
-  const beersQuery = useQuery({
-    queryKey: [
-      "beers",
-      { search: debouncedBeerSearch, page_size: 50 } satisfies BeersParams,
-    ] as const,
-    queryFn: async ({ queryKey }) => {
-      const res = await getBeers(queryKey[1]);
-      return res.data;
+  const beersQuery = useBeersPage({
+    params: {
+      search: debouncedBeerSearch,
+      page_size: 50,
     },
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,
