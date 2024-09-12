@@ -16,6 +16,7 @@ export const QUERY_KEY_PURCHASES = "purchases";
 interface UsePurchaseQueryOptions {
   initialData: PaginatedResponseData<BeerPurchase>;
   params: PurchasesParams;
+  staleTime?: number;
   refetchOnWindowFocus?: boolean;
 }
 
@@ -33,6 +34,7 @@ export const usePurchasesQuery = (options: UsePurchaseQueryOptions) => {
       pages: [options.initialData],
       pageParams: [1],
     },
+    staleTime: options?.staleTime,
     initialDataUpdatedAt: new Date().getTime(),
     refetchOnWindowFocus: options.refetchOnWindowFocus ?? false,
     getNextPageParam: getNextPageParam,

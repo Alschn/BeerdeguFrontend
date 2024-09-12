@@ -1,5 +1,16 @@
-import { Table as MantineTable, type TableProps } from "@mantine/core";
+import {
+  Flex,
+  Table as MantineTable,
+  Tooltip,
+  type TableProps,
+} from "@mantine/core";
+import {
+  IconArrowNarrowDown,
+  IconArrowNarrowUp,
+  IconArrowsSort,
+} from "@tabler/icons-react";
 import { type Table as ReactTable, flexRender } from "@tanstack/react-table";
+import SortingIndicator from "./table/SortingIndicator";
 
 interface GenericTableProps<T = unknown> extends TableProps {
   table: ReactTable<T>;
@@ -19,11 +30,25 @@ export default function GenericTable<TTable>({
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>
             {headerGroup.headers.map((header) => (
-              <th key={header.id}>
-                {flexRender(
-                  header.column.columnDef.header,
-                  header.getContext()
-                )}
+              <th
+                key={header.id}
+                {...(header.column.getCanSort()
+                  ? { onClick: header.column.getToggleSortingHandler() }
+                  : {})}
+                style={{
+                  cursor: header.column.getCanSort() ? "pointer" : "default",
+                }}
+              >
+                <Flex align="center" gap={1}>
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
+                  <SortingIndicator
+                    canSort={header.column.getCanSort()}
+                    direction={header.column.getIsSorted()}
+                  />
+                </Flex>
               </th>
             ))}
           </tr>
