@@ -1,27 +1,13 @@
 import type { SortingState } from "@tanstack/react-table";
 import { useState } from "react";
 
-interface InitialSorting {
-  columnId: string;
-  order: "asc" | "desc";
-  fieldName?: string;
-}
+export const useSorting = (initial: SortingState) => {
+  const [sorting, setSorting] = useState<SortingState>(initial);
 
-export const useSorting = ({ columnId, order, fieldName }: InitialSorting) => {
-  const [sorting, setSorting] = useState<SortingState>([
-    {
-      id: columnId,
-      desc: order === "desc",
-    },
-  ]);
-
-  let ordering: string | undefined;
-  if (sorting.length) {
-    const prefix = sorting[0]!.desc ? "-" : "";
-    ordering = `${prefix}${fieldName ?? columnId}`;
-  } else {
-    ordering = undefined;
-  }
+  const orderings = sorting.map((s) => {
+    return s.desc ? `-${s.id}` : s.id;
+  });
+  const ordering = orderings.length ? orderings.join(",") : undefined;
 
   return {
     sorting,
@@ -30,5 +16,15 @@ export const useSorting = ({ columnId, order, fieldName }: InitialSorting) => {
   };
 };
 
-// todo: implement multi-column sorting if needed
-export const useMultiSorting = () => null;
+interface OrderingParams {
+  ordering?: string;
+}
+
+export const getInitialSortingFromParams = (params?: OrderingParams) => {
+  if (!params || !params.ordering) return [];
+  return params.ordering.split(",").map((ordering) => {
+    const desc = ordering.startsWith("-");
+    const id = desc ? ordering.slice(1) : ordering;
+    return { id, desc } as const;
+  });
+};
