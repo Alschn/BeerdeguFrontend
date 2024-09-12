@@ -13,9 +13,10 @@ import {
   Text,
 } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
-import { useForm } from "@mantine/form";
+import { z } from "zod";
+import { useForm, zodResolver } from "@mantine/form";
 import { useDebouncedValue } from "@mantine/hooks";
-import { useLayoutEffect, useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { type CreatePurchasePayload } from "~/api/purchases";
 import { BeerPackagings } from "~/api/types";
 import { useBeersPage } from "~/hooks/api/beers";
@@ -39,12 +40,21 @@ const packagingOptions = Object.values(BeerPackagings).map((v) => ({
   label: v.at(0)!.toUpperCase() + v.slice(1).toLowerCase(),
 }));
 
+const purchaseAddSchema = z.object({
+  beer: z.number({ coerce: true }).min(1),
+  packaging: z.string().min(1),
+  price: z.number().min(0),
+  volume_ml: z.number().min(1),
+  purchased_at: z.date().transform((date) => date.toISOString().slice(0, 10)),
+});
+
 const PurchaseAddModal = ({
   opened,
   onClose,
   onSubmit,
   isLoading = false,
 }: PurchaseAddModalProps) => {
+  const dateNowRef = useRef(new Date());
   const [beerSearch, setBeerSearch] = useState("");
   const [debouncedBeerSearch] = useDebouncedValue(beerSearch, 500);
 
@@ -52,6 +62,7 @@ const PurchaseAddModal = ({
     params: {
       search: debouncedBeerSearch,
       page_size: 50,
+      ordering: "-created_at",
     },
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,
@@ -69,43 +80,22 @@ const PurchaseAddModal = ({
     }));
   }, [beersQuery.data]);
 
-  const now = new Date();
-
   const form = useForm<CreatePurchaseForm>({
     initialValues: {
       beer: null,
       packaging: null,
       price: "",
       volume_ml: "",
-      purchased_at: now,
+      purchased_at: dateNowRef.current,
     },
+    validate: zodResolver(purchaseAddSchema),
   });
 
   const handleSubmit = (values: CreatePurchaseForm) => {
-    const { beer, packaging, price, volume_ml, purchased_at } = values;
-
-    if (
-      !beer ||
-      !packaging ||
-      price === "" ||
-      volume_ml === "" ||
-      !purchased_at
-    )
-      return;
-
-    onSubmit({
-      beer: Number(beer),
-      packaging: packaging,
-      price: price,
-      volume_ml: volume_ml,
-      // YYYY-MM-DD
-      purchased_at: new Date(purchased_at).toISOString().slice(0, 10),
-    });
+    const parsed = purchaseAddSchema.safeParse(values);
+    if (!parsed.success) return;
+    onSubmit(parsed.data);
   };
-
-  const hasEmptyFields = useMemo(() => {
-    return Object.values(form.values).some((v) => v === null || v === "");
-  }, [form.values]);
 
   useLayoutEffect(() => {
     if (opened) return;
@@ -130,6 +120,10 @@ const PurchaseAddModal = ({
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
           <Select
+            {...form.getInputProps("beer")}
+            data={beerOptions}
+            searchValue={beerSearch}
+            onSearchChange={setBeerSearch}
             name="beer"
             label="Beer"
             placeholder="Select beer..."
@@ -138,11 +132,6 @@ const PurchaseAddModal = ({
             rightSection={
               beersQuery.isLoading ? <Loader size="xs" /> : undefined
             }
-            data={beerOptions}
-            searchValue={beerSearch}
-            onSearchChange={setBeerSearch}
-            value={form.values.beer}
-            onChange={(value) => form.setFieldValue("beer", value)}
             filter={() => true}
             searchable
             clearable
@@ -150,45 +139,41 @@ const PurchaseAddModal = ({
             withinPortal
           />
           <Select
+            {...form.getInputProps("packaging")}
+            data={packagingOptions}
             name="packaging"
             label="Packaging"
             placeholder="Select packaging..."
-            data={packagingOptions}
-            value={form.values.packaging}
-            onChange={(value) => form.setFieldValue("packaging", value)}
             searchable
             clearable
             required
             withinPortal
           />
           <NumberInput
+            {...form.getInputProps("price")}
             name="price"
             label="Price [PLN]"
             placeholder="Beer price in Polish Zloty"
             min={0}
             max={1000}
-            value={form.values.price}
-            onChange={(value) => form.setFieldValue("price", value)}
             required
           />
           <NumberInput
+            {...form.getInputProps("volume_ml")}
             name="volume_ml"
             label="Volume [ml]"
             placeholder="Beer volume in ml"
             min={0}
             max={1_000_000}
-            value={form.values.volume_ml}
-            onChange={(value) => form.setFieldValue("volume_ml", value)}
             required
           />
           <DateInput
+            {...form.getInputProps("purchased_at")}
             name="purchased_at"
             label="Purchased at"
             placeholder="Purchased at"
-            value={form.values.purchased_at}
-            onChange={(value) => form.setFieldValue("purchased_at", value)}
-            defaultValue={now}
-            maxDate={now}
+            defaultValue={dateNowRef.current}
+            maxDate={dateNowRef.current}
             clearable
             required
           />
@@ -201,7 +186,7 @@ const PurchaseAddModal = ({
             >
               Cancel
             </Button>
-            <Button type="submit" loading={isLoading} disabled={hasEmptyFields}>
+            <Button type="submit" loading={isLoading}>
               Submit
             </Button>
           </Flex>

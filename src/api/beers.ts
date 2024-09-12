@@ -5,6 +5,7 @@ export type BeersParams = {
   page?: number;
   page_size?: number;
   search?: string;
+  ordering?: string;
   name__icontains?: string;
   brewery__in?: string;
   brewery__name?: string;

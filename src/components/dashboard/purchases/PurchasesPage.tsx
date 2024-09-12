@@ -33,12 +33,11 @@ export default function PurchasesPage({ initialData }: PurchasesPageProps) {
 
   const [isAddModalOpen, addModalHandlers] = useDisclosure(false);
 
-  // todo: add filters
-  // existing: (packaging, price, volume, purchased_at)
-  // to be added: (search, ordering)
+  // todo: add filters (packaging, price, volume, purchased_at)
   const purchasesParams: PurchasesParams = {
     search: debouncedSearch,
     page_size: 10,
+    ordering: "-purchased_at",
   } as const;
 
   const {
