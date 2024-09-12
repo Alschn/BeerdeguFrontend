@@ -4,6 +4,9 @@ import { Flex, Image, Text, createStyles } from "@mantine/core";
 import {
   createColumnHelper,
   getCoreRowModel,
+  getSortedRowModel,
+  OnChangeFn,
+  SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 import type { BeerPurchase } from "~/api/types";
@@ -38,6 +41,7 @@ const BeerCell = ({ beer }: { beer: BeerPurchase["beer"] }) => {
 const columns = [
   columnHelper.accessor("id", {
     header: "#",
+    enableSorting: false,
   }),
   columnHelper.accessor("beer", {
     id: "beer",
@@ -46,39 +50,49 @@ const columns = [
       const beer = props.getValue();
       return <BeerCell beer={beer} />;
     },
+    enableSorting: false,
   }),
   columnHelper.accessor("beer.style.name", {
     header: "Style",
     cell: (props) => props.getValue(),
+    enableSorting: false,
   }),
   columnHelper.accessor("beer.brewery.name", {
     header: "Brewery",
     cell: (props) => props.getValue(),
+    enableSorting: false,
   }),
   columnHelper.accessor("packaging", {
     header: "Packaging",
     cell: (props) => capitalize(props.getValue()),
+    enableSorting: false,
   }),
   columnHelper.accessor("volume_ml", {
     header: "Volume",
     cell: (props) => `${props.getValue()} ml`,
+    enableSorting: false,
   }),
   columnHelper.accessor("price", {
     header: "Price",
     cell: (props) => `${props.getValue()} zł`,
+    enableSorting: true,
   }),
   columnHelper.accessor("purchased_at", {
     header: "Purchase date",
     cell: (props) => new Date(props.getValue()).toLocaleDateString(),
+    enableSorting: true,
   }),
   columnHelper.display({
     id: "actions",
     header: "Actions",
+    enableSorting: false,
   }),
 ];
 
 interface PurchasesTableProps {
   data: BeerPurchase[];
+  sorting: SortingState;
+  onSortingChange: OnChangeFn<SortingState>;
   isLoading?: boolean;
 }
 
@@ -99,16 +113,33 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-const PurchasesTable = ({ data }: PurchasesTableProps) => {
+const PurchasesTable = ({
+  data,
+  isLoading,
+  sorting,
+  onSortingChange,
+}: PurchasesTableProps) => {
   const { classes } = useStyles();
 
   const table = useReactTable({
     data: data,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    manualSorting: true,
+    onSortingChange: onSortingChange,
+    state: {
+      sorting,
+    },
   });
 
-  return <GenericTable table={table} className={classes.table} />;
+  return (
+    <GenericTable
+      table={table}
+      className={classes.table}
+      isLoading={isLoading}
+    />
+  );
 };
 
 export default PurchasesTable;

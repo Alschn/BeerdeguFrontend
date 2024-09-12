@@ -22,30 +22,52 @@ import SearchInput from "~/components/SearchInput";
 import { usePurchaseCreateMutation, usePurchasesQuery } from "~/hooks/api";
 import PurchaseAddModal from "./PurchaseAddModal";
 import PurchasesTable from "./PurchasesTable";
+import {
+  getInitialSortingFromParams,
+  useSorting,
+} from "~/hooks/table/useSorting";
 
 interface PurchasesPageProps {
   initialData: PaginatedResponseData<BeerPurchase>;
+  initialParams?: PurchasesParams;
 }
 
-export default function PurchasesPage({ initialData }: PurchasesPageProps) {
+export default function PurchasesPage({
+  initialData,
+  initialParams,
+}: PurchasesPageProps) {
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 500);
 
+  const { sorting, onSortingChange, ordering } = useSorting(
+    getInitialSortingFromParams(initialParams)
+  );
+
   const [isAddModalOpen, addModalHandlers] = useDisclosure(false);
 
-  // todo: add filters (packaging, price, volume, purchased_at)
-  const purchasesParams: PurchasesParams = {
-    search: debouncedSearch,
-    page_size: 10,
-    ordering: "-purchased_at",
-  } as const;
+  const purchasesParams = useMemo<PurchasesParams>(() => {
+    return {
+      ...initialParams,
+      ordering,
+      search: debouncedSearch,
+      // todo: add other filters
+      packaging: undefined,
+      price: undefined,
+      volume: undefined,
+      purchased_at: undefined,
+    };
+  }, [debouncedSearch, ordering]);
 
   const {
     data: dataPurchases,
     isLoading: isLoadingPurchases,
     hasNextPage: hasNextPagePurchases,
     fetchNextPage: fetchNextPagePurchases,
-  } = usePurchasesQuery({ initialData, params: purchasesParams });
+  } = usePurchasesQuery({
+    initialData,
+    staleTime: 10 * 1000,
+    params: purchasesParams,
+  });
 
   const purchases = useMemo(() => {
     return dataPurchases?.pages.flatMap((page) => page.results) || [];
@@ -132,7 +154,11 @@ export default function PurchasesPage({ initialData }: PurchasesPageProps) {
             }}
             sx={{ overflow: "auto" }}
           >
-            <PurchasesTable data={purchases} />
+            <PurchasesTable
+              data={purchases}
+              sorting={sorting}
+              onSortingChange={onSortingChange}
+            />
           </Box>
         </Card>
       </InfiniteScroll>
