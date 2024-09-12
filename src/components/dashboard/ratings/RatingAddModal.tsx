@@ -1,28 +1,21 @@
 import {
-  Modal,
-  Stack,
-  type ModalProps,
-  Textarea,
-  Select,
   Button,
-  Text,
-  Loader,
   Flex,
+  Loader,
+  Modal,
+  type ModalProps,
   ScrollArea,
+  Select,
+  Stack,
+  Text,
+  Textarea,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDebouncedValue } from "@mantine/hooks";
-import { useQuery } from "@tanstack/react-query";
-import {
-  type ComponentPropsWithoutRef,
-  forwardRef,
-  useMemo,
-  useState,
-  useLayoutEffect,
-} from "react";
-import { type BeersParams, getBeers } from "~/api/beers";
+import { useLayoutEffect, useMemo, useState } from "react";
 import { type CreateRatingPayload } from "~/api/ratings";
-import BeerRowItem from "./BeerRowItem";
+import { useBeersPage } from "~/hooks/api/beers";
+import BeerSelectItem from "./BeerSelectItem";
 
 const NOTES = [
   { value: "1", label: "1" },
@@ -52,27 +45,6 @@ type CreateRatingForm = {
   note: string | null;
 };
 
-interface BeerSelectItemProps extends ComponentPropsWithoutRef<"div"> {
-  image: string | null;
-  label: string;
-  description: string;
-  badge: string;
-}
-
-const BeerSelectItem = forwardRef<HTMLDivElement, BeerSelectItemProps>(
-  ({ image, label, description, badge, ...rest }: BeerSelectItemProps, ref) => (
-    <div ref={ref} {...rest}>
-      <BeerRowItem
-        image={image}
-        label={label}
-        description={description}
-        badge={badge}
-      />
-    </div>
-  )
-);
-BeerSelectItem.displayName = "BeerSelectItem";
-
 export default function RatingAddModal({
   opened,
   onClose,
@@ -82,14 +54,10 @@ export default function RatingAddModal({
   const [beerSearch, setBeerSearch] = useState("");
   const [debouncedBeerSearch] = useDebouncedValue(beerSearch, 500);
 
-  const beersQuery = useQuery({
-    queryKey: [
-      "beers",
-      { search: debouncedBeerSearch, page_size: 50 } satisfies BeersParams,
-    ] as const,
-    queryFn: async ({ queryKey }) => {
-      const res = await getBeers(queryKey[1]);
-      return res.data;
+  const beersQuery = useBeersPage({
+    params: {
+      search: debouncedBeerSearch,
+      page_size: 50,
     },
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,

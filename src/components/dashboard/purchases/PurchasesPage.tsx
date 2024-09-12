@@ -10,57 +10,34 @@ import {
   Loader,
 } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import { IconPlus } from "@tabler/icons-react";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import { type ChangeEvent, useMemo, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { APIError, isApiError } from "~/api/errors";
+import { type CreatePurchasePayload } from "~/api/purchases";
 import type { BeerPurchase, PaginatedResponseData } from "~/api/types";
-import {
-  getPurchases,
-  type PurchasesParams,
-} from "~/app/dashboard/(general)/purchases/actions";
-import { getNextPageParam } from "~/utils/tanstack-query";
-import PurchasesTable from "./PurchasesTable";
+import { type PurchasesParams } from "~/app/dashboard/(general)/purchases/actions";
 import SearchInput from "~/components/SearchInput";
+import { usePurchaseCreateMutation, usePurchasesQuery } from "~/hooks/api";
+import PurchaseAddModal from "./PurchaseAddModal";
+import PurchasesTable from "./PurchasesTable";
 
 interface PurchasesPageProps {
   initialData: PaginatedResponseData<BeerPurchase>;
 }
 
-const usePurchasesQuery = (
-  initialData: PaginatedResponseData<BeerPurchase>,
-  params: PurchasesParams
-) => {
-  return useInfiniteQuery({
-    queryKey: ["purchases", params] as const,
-    queryFn: async ({ pageParam = 1, queryKey }) => {
-      return await getPurchases({
-        page: pageParam as number,
-        ...queryKey[1],
-      });
-    },
-    initialData: {
-      pages: [initialData],
-      pageParams: [1],
-    },
-    initialDataUpdatedAt: new Date().getTime(),
-    refetchOnWindowFocus: false,
-    getNextPageParam: getNextPageParam,
-  });
-};
-
 export default function PurchasesPage({ initialData }: PurchasesPageProps) {
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 500);
 
-  const [_isAddModalOpen, addModalHandlers] = useDisclosure(false);
+  const [isAddModalOpen, addModalHandlers] = useDisclosure(false);
 
-  // todo: add filters
-  // existing: (packaging, price, volume, purchased_at)
-  // to be added: (search, ordering)
+  // todo: add filters (packaging, price, volume, purchased_at)
   const purchasesParams: PurchasesParams = {
     search: debouncedSearch,
     page_size: 10,
+    ordering: "-purchased_at",
   } as const;
 
   const {
@@ -68,7 +45,7 @@ export default function PurchasesPage({ initialData }: PurchasesPageProps) {
     isLoading: isLoadingPurchases,
     hasNextPage: hasNextPagePurchases,
     fetchNextPage: fetchNextPagePurchases,
-  } = usePurchasesQuery(initialData, purchasesParams);
+  } = usePurchasesQuery({ initialData, params: purchasesParams });
 
   const purchases = useMemo(() => {
     return dataPurchases?.pages.flatMap((page) => page.results) || [];
@@ -83,10 +60,51 @@ export default function PurchasesPage({ initialData }: PurchasesPageProps) {
     setSearch(e.target.value);
   };
 
-  // todo: add filters inputs, multistep modal
+  const createMutation = usePurchaseCreateMutation({
+    onSuccess: () => {
+      notifications.show({
+        title: "Success!",
+        message: "Purchase has been added",
+        color: "green",
+      });
+      addModalHandlers.close();
+    },
+    onError: (error) => {
+      if (!isApiError(error)) {
+        notifications.show({
+          title: "Something went wrong!",
+          message: "Try again later...",
+          color: "red",
+        });
+        return;
+      }
+
+      const _err = APIError.fromAxiosError(error);
+      // todo: handle validation errors
+      console.error(_err);
+
+      notifications.show({
+        title: "Could not create a new purchase!",
+        message: "Please check if your data is correct.",
+        color: "red",
+      });
+    },
+  });
+
+  const handleSubmit = (values: CreatePurchasePayload) => {
+    createMutation.mutate(values);
+  };
+
+  // todo: add filters inputs, make modal multistep
 
   return (
     <Box>
+      <PurchaseAddModal
+        opened={isAddModalOpen}
+        onClose={addModalHandlers.close}
+        onSubmit={handleSubmit}
+        isLoading={createMutation.isLoading}
+      />
       <InfiniteScroll
         dataLength={purchases.length}
         next={handleFetchNextPage}
@@ -101,7 +119,6 @@ export default function PurchasesPage({ initialData }: PurchasesPageProps) {
             <Button
               leftIcon={<IconPlus size="1rem" />}
               onClick={addModalHandlers.open}
-              disabled
             >
               Add purchase
             </Button>
