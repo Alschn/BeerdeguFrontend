@@ -1,16 +1,16 @@
 "use client";
 
-import { Flex, Image, Text, createStyles } from "@mantine/core";
+import { createStyles, Flex, Image, Text } from "@mantine/core";
 import {
   createColumnHelper,
   getCoreRowModel,
   getSortedRowModel,
-  OnChangeFn,
-  SortingState,
+  type OnChangeFn,
+  type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 import type { BeerPurchase } from "~/api/types";
-import GenericTable from "~/components/GenericTable";
+import GenericTable from "~/components/table/GenericTable";
 import { capitalize } from "~/utils/text";
 
 const columnHelper = createColumnHelper<BeerPurchase>();
@@ -85,7 +85,6 @@ const columns = [
   columnHelper.display({
     id: "actions",
     header: "Actions",
-    enableSorting: false,
   }),
 ];
 

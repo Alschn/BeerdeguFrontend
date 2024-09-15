@@ -1,6 +1,6 @@
 import { Flex, Table, type TableProps } from "@mantine/core";
 import { type Table as ReactTable, flexRender } from "@tanstack/react-table";
-import SortingIndicator from "./table/SortingIndicator";
+import SortingIndicator from "./SortingIndicator";
 
 interface GenericTableProps<T = unknown> extends TableProps {
   table: ReactTable<T>;

@@ -4,7 +4,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import type { Hop } from "~/api/types";
-import GenericTable from "~/components/GenericTable";
+import GenericTable from "~/components/table/GenericTable";
 
 interface HopsTableProps {
   data: Hop[];
