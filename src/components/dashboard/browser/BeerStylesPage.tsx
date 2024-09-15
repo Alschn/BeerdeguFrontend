@@ -1,6 +1,5 @@
 "use client";
 
-import type { BeerStyle, PaginatedResponseData } from "~/api/types";
 import {
   Box,
   Button,
@@ -12,17 +11,12 @@ import {
   Select,
   TextInput,
 } from "@mantine/core";
-import { type ChangeEvent, useMemo, useState } from "react";
 import { useDebouncedValue } from "@mantine/hooks";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { getNextPageParam } from "~/utils/tanstack-query";
+import { type ChangeEvent, useMemo, useRef, useState } from "react";
+import type { BeerStyle, PaginatedResponseData } from "~/api/types";
+import { useBeerStyles } from "~/hooks/api/beer_styles";
 import BeerStylesTable from "./BeerStylesTable";
-import { type BeerStylesParams, getBeerStyles } from "~/api/beer_styles";
-
-interface BeerStylesPageProps {
-  initialData: PaginatedResponseData<BeerStyle>;
-}
 
 const PAGE_SIZES = [
   { value: "10", label: "10" },
@@ -31,38 +25,41 @@ const PAGE_SIZES = [
   { value: "100", label: "100" },
 ];
 
+const QUERY_STALE_TIME = 60 * 1000;
+
+interface BeerStylesPageProps {
+  initialData: PaginatedResponseData<BeerStyle>;
+}
+
 export default function BeerStylesPage({ initialData }: BeerStylesPageProps) {
+  const initialDataUpdateAtRef = useRef(
+    new Date().getTime() - QUERY_STALE_TIME
+  );
+
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 500);
+
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
 
-  const filters = {
-    page: page,
-    page_size: pageSize,
-    name__icontains: debouncedSearch,
-  } satisfies BeerStylesParams;
-
   const { isLoading: isLoadingBeerStyles, data: dataBeerStyles } =
-    useInfiniteQuery({
-      queryKey: ["beer_styles", filters] as const,
-      queryFn: async ({ queryKey }) => {
-        const res = await getBeerStyles(queryKey[1]);
-        return res.data;
+    useBeerStyles({
+      params: {
+        page: page,
+        page_size: pageSize,
+        name__icontains: debouncedSearch,
       },
-      staleTime: 60 * 1000,
-      getNextPageParam: getNextPageParam,
-      initialData: {
-        pages: [initialData],
-        pageParams: [1],
-      },
-      initialDataUpdatedAt: new Date().getTime() - 60 * 1000,
+      staleTime: QUERY_STALE_TIME,
+      initialData: initialData,
+      initialDataUpdatedAt: initialDataUpdateAtRef.current,
     });
 
   const results = useMemo(() => {
     if (!dataBeerStyles) return initialData.results;
     return dataBeerStyles.pages.flatMap((page) => page.results) || [];
   }, [dataBeerStyles, initialData.results]);
+
+  // const [isAddModalOpen, addModalHandlers] = useDisclosure(false);
 
   const handleChangeSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearch(e.currentTarget.value);
@@ -78,6 +75,41 @@ export default function BeerStylesPage({ initialData }: BeerStylesPageProps) {
   };
 
   const pagesCount = Math.ceil(initialData.count / pageSize);
+
+  // const client = useQueryClient();
+
+  // const addMutation = useMutation({
+  //   mutationFn: async () => {
+  //     //
+  //   },
+  //   onSuccess: async () => {
+  //     notifications.show({
+  //       title: "Beer style created",
+  //       message: "Beer style was successfully created",
+  //       color: "green",
+  //     });
+  //     await client.invalidateQueries(["beer_styles"]);
+  //     addModalHandlers.close();
+  //   },
+  //   onError: (error) => {
+  //     if (!isApiError(error)) {
+  //       notifications.show({
+  //         title: "Something went wrong!",
+  //         message: "Try again later...",
+  //         color: "red",
+  //       });
+  //       return;
+  //     }
+
+  //     const _err = APIError.fromAxiosError(error);
+  //     // todo: handle error messsages
+  //     notifications.show({
+  //       title: "Failed to add beer style",
+  //       message: "Make sure that provided data is correct",
+  //       color: "red",
+  //     });
+  //   },
+  // });
 
   const handleAddBeerStyle = () => {
     // todo: modal, mutation
@@ -108,7 +140,6 @@ export default function BeerStylesPage({ initialData }: BeerStylesPageProps) {
         <Button
           leftIcon={<IconPlus size="1rem" />}
           onClick={handleAddBeerStyle}
-          disabled
           id="beer_style-add-button"
         >
           Add beer style

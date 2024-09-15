@@ -8,22 +8,15 @@ import {
   Flex,
   Group,
   Pagination,
-  Paper,
   Select,
   TextInput,
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { type ChangeEvent, useMemo, useState } from "react";
-import { type BreweriesParams, getBreweries } from "~/api/breweries";
-import type { PaginatedResponseData, Brewery } from "~/api/types";
-import { getNextPageParam } from "~/utils/tanstack-query";
+import { type ChangeEvent, useMemo, useRef, useState } from "react";
+import type { Brewery, PaginatedResponseData } from "~/api/types";
+import { useBreweries } from "~/hooks/api/breweries";
 import BreweriesTable from "./BreweriesTable";
-
-interface BreweriesPageProps {
-  initialData: PaginatedResponseData<Brewery>;
-}
 
 const PAGE_SIZES = [
   { value: "10", label: "10" },
@@ -32,37 +25,37 @@ const PAGE_SIZES = [
   { value: "100", label: "100" },
 ];
 
+const QUERY_STALE_TIME = 60 * 1000;
+
+interface BreweriesPageProps {
+  initialData: PaginatedResponseData<Brewery>;
+}
+
 export default function BreweriesPage({ initialData }: BreweriesPageProps) {
+  const initialDataUpdateAtRef = useRef(
+    new Date().getTime() - QUERY_STALE_TIME
+  );
+
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 500);
+
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
 
-  const filters = {
-    page: page,
-    page_size: pageSize,
-    search: debouncedSearch,
-  } satisfies BreweriesParams;
-
-  const { isLoading: isLoadingBreweries, data: dataBreweries } =
-    useInfiniteQuery({
-      queryKey: ["breweries", filters] as const,
-      queryFn: async ({ queryKey }) => {
-        const res = await getBreweries(queryKey[1]);
-        return res.data;
-      },
-      staleTime: 60 * 1000,
-      getNextPageParam: getNextPageParam,
-      initialData: {
-        pages: [initialData],
-        pageParams: [1],
-      },
-      initialDataUpdatedAt: new Date().getTime() - 60 * 1000,
-    });
+  const { isLoading: isLoadingBreweries, data: dataBreweries } = useBreweries({
+    params: {
+      page: page,
+      page_size: pageSize,
+      search: debouncedSearch,
+    },
+    staleTime: QUERY_STALE_TIME,
+    initialData: initialData,
+    initialDataUpdatedAt: initialDataUpdateAtRef.current,
+  });
 
   const results = useMemo(() => {
     if (!dataBreweries) return initialData.results;
-    return dataBreweries.pages.flatMap((page) => page.results) || [];
+    return dataBreweries.pages.flatMap((page) => page.results);
   }, [dataBreweries, initialData.results]);
 
   const handleChangeSearch = (e: ChangeEvent<HTMLInputElement>) => {

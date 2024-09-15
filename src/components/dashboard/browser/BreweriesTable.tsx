@@ -4,27 +4,32 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import type { Brewery } from "~/api/types";
-import GenericTable from "~/components/GenericTable";
+import GenericTable from "~/components/table/GenericTable";
 
 const columnHelper = createColumnHelper<Brewery>();
 
 const columns = [
   columnHelper.accessor("id", {
     header: "#",
+    enableSorting: false,
   }),
   columnHelper.accessor("name", {
     header: "Name",
+    enableSorting: false,
   }),
   columnHelper.accessor("city", {
     header: "City",
     cell: (info) => info.getValue() || "-",
+    enableSorting: false,
   }),
   columnHelper.accessor("country", {
     header: "Country",
     cell: (info) => info.getValue() || "-",
+    enableSorting: false,
   }),
   columnHelper.display({
     header: "Actions",
+    enableSorting: false,
     // todo: action buttons
   }),
 ];
