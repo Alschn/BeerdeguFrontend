@@ -16,20 +16,25 @@ const columnHelper = createColumnHelper<BeerStyle>();
 const columns = [
   columnHelper.accessor("id", {
     header: "#",
+    enableSorting: false,
   }),
   columnHelper.accessor("name", {
     header: "Name",
+    enableSorting: false,
   }),
   columnHelper.accessor("country", {
     header: "Country",
     cell: (info) => info.getValue() || "-",
+    enableSorting: false,
   }),
   columnHelper.accessor("description", {
     header: "Description",
     cell: (info) => info.getValue() || "-",
+    enableSorting: false,
   }),
   columnHelper.display({
     header: "Actions",
+    enableSorting: false,
     // todo: actions
   }),
 ];

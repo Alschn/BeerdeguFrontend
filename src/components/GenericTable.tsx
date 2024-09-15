@@ -1,14 +1,4 @@
-import {
-  Flex,
-  Table as MantineTable,
-  Tooltip,
-  type TableProps,
-} from "@mantine/core";
-import {
-  IconArrowNarrowDown,
-  IconArrowNarrowUp,
-  IconArrowsSort,
-} from "@tabler/icons-react";
+import { Flex, Table, type TableProps } from "@mantine/core";
 import { type Table as ReactTable, flexRender } from "@tanstack/react-table";
 import SortingIndicator from "./table/SortingIndicator";
 
@@ -25,7 +15,7 @@ export default function GenericTable<TTable>({
   // todo: loading state
 
   return (
-    <MantineTable verticalSpacing="md" fontSize="sm" highlightOnHover {...rest}>
+    <Table verticalSpacing="md" fontSize="sm" highlightOnHover {...rest}>
       <thead>
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>
@@ -65,6 +55,6 @@ export default function GenericTable<TTable>({
           </tr>
         ))}
       </tbody>
-    </MantineTable>
+    </Table>
   );
 }
