@@ -11,49 +11,41 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
-import { useState, type FC, type ChangeEvent, useMemo } from "react";
-import type { PaginatedResponseData, Room } from "~/api/types";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { getNextPageParam } from "~/utils/tanstack-query";
-import { getRooms } from "~/api/rooms";
-import RoomsTable from "../RoomsTable";
 import { IconSearch } from "@tabler/icons-react";
-
-interface RoomsPageProps {
-  initialData: PaginatedResponseData<Room>;
-}
+import { useMemo, useRef, useState, type ChangeEvent, type FC } from "react";
+import type { PaginatedResponseData, Room } from "~/api/types";
+import { useRooms } from "~/hooks/api/rooms";
+import RoomsTable from "../RoomsTable";
 
 const PAGE_SIZES = [
   { value: "10", label: "10" },
   { value: "25", label: "25" },
   { value: "50", label: "50" },
   { value: "100", label: "100" },
-];
+] as const;
+
+interface RoomsPageProps {
+  initialData: PaginatedResponseData<Room>;
+}
 
 const RoomsPage: FC<RoomsPageProps> = ({ initialData }) => {
+  const initialDataUpdatedAtRef = useRef(new Date().getTime());
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 500);
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
 
-  const { data: dataRooms } = useInfiniteQuery({
-    queryKey: [
-      "rooms",
-      { page: page, page_size: pageSize, name__icontains: debouncedSearch },
-    ] as const,
-    queryFn: async ({ queryKey }) => {
-      const res = await getRooms({ ...queryKey[1] });
-      return res.data;
+  const { data: dataRooms } = useRooms({
+    params: {
+      page: page,
+      page_size: pageSize,
+      name__icontains: debouncedSearch,
     },
-    getNextPageParam: getNextPageParam,
     refetchOnReconnect: false,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
-    initialData: {
-      pages: [initialData],
-      pageParams: [1],
-    },
-    initialDataUpdatedAt: new Date().getTime(),
+    initialData: initialData,
+    initialDataUpdatedAt: initialDataUpdatedAtRef.current,
   });
 
   const data = useMemo(() => {
