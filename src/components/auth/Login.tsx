@@ -13,7 +13,7 @@ import {
   TextInput,
   Flex,
 } from "@mantine/core";
-import { useForm } from "@mantine/form";
+import { useForm, zodResolver } from "@mantine/form";
 import NextLink from "next/link";
 import { notifications } from "@mantine/notifications";
 import { useSearchParams } from "next/navigation";
@@ -21,6 +21,7 @@ import { useMutation } from "@tanstack/react-query";
 import GoogleButton from "../GoogleButton";
 import { type LoginPayload, getGoogleAuthUrl, login } from "~/api/auth";
 import { APIError, isApiError } from "~/api/errors";
+import { z } from "zod";
 
 const useGoogleLoginInitMutation = () => {
   return useMutation({
@@ -99,12 +100,18 @@ const useLoginMutation = () => {
   });
 };
 
+const loginSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
+});
+
 export function LoginForm(props: PaperProps) {
   const form = useForm({
     initialValues: {
       username: "",
       password: "",
     },
+    validate: zodResolver(loginSchema),
   });
 
   const mutation = useLoginMutation();
@@ -141,29 +148,20 @@ export function LoginForm(props: PaperProps) {
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
           <TextInput
-            required
+            {...form.getInputProps("username")}
+            name="username"
             label="Username"
             placeholder="Enter username"
-            value={form.values.username}
-            onChange={(event) =>
-              form.setFieldValue("username", event.currentTarget.value)
-            }
-            error={form.errors.username && "Invalid username"}
             radius="md"
+            required
           />
           <PasswordInput
-            required
+            {...form.getInputProps("password")}
+            name="password"
             label="Password"
             placeholder="Enter password"
-            value={form.values.password}
-            onChange={(event) =>
-              form.setFieldValue("password", event.currentTarget.value)
-            }
-            error={
-              form.errors.password &&
-              "Password should include at least 6 characters"
-            }
             radius="md"
+            required
           />
         </Stack>
 
