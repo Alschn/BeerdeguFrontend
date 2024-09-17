@@ -23,7 +23,7 @@ import { useDebouncedValue, useListState } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { IconInfoCircleFilled } from "@tabler/icons-react";
-import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import {
   useCallback,
   useLayoutEffect,
@@ -32,12 +32,11 @@ import {
   type ChangeEvent,
 } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { getBeers } from "~/api/beers";
 import { addBeerToRoom, removeBeerFromRoom } from "~/api/rooms";
 import type { Beer } from "~/api/types";
 import { useRoom } from "~/components/context/room";
 import { useWebsocketClient } from "~/components/context/websocket";
-import { getNextPageParam } from "~/utils/tanstack-query";
+import { useBeers } from "~/hooks/api/beers";
 import BeerCardListItem from "./BeerCardListItem";
 import BeerDetailsModalBody from "./BeerDetailsModalBody";
 
@@ -228,16 +227,10 @@ export default function HostView() {
     data: beersData,
     hasNextPage: hasNextPageBeers,
     fetchNextPage: fetchNextPageBeers,
-  } = useInfiniteQuery({
-    queryKey: ["beers", { search: debouncedSearch }] as const,
-    queryFn: async ({ pageParam = 1, queryKey }) => {
-      const res = await getBeers({
-        page: pageParam as number,
-        ...queryKey[1],
-      });
-      return res.data;
+  } = useBeers({
+    params: {
+      search: debouncedSearch,
     },
-    getNextPageParam: getNextPageParam,
     refetchOnWindowFocus: false,
   });
 

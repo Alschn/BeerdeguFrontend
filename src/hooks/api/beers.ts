@@ -37,11 +37,15 @@ export const useBeersPage = (options: UseBeersPageOptions) => {
 };
 
 interface UseBeersOptions extends UseBeersPageOptions {
-  initialData: PaginatedResponseData<Beer>;
+  initialData?: PaginatedResponseData<Beer>;
   initialDataUpdatedAt?: number;
 }
 
 export const useBeers = (options: UseBeersOptions) => {
+  const initialData = !!options.initialData
+    ? { pages: [options.initialData], pageParams: [1] }
+    : undefined;
+
   return useInfiniteQuery({
     queryKey: [QUERY_KEY_BEERS, options.params] as const,
     queryFn: async ({ queryKey, pageParam = 1 }) => {
@@ -56,10 +60,7 @@ export const useBeers = (options: UseBeersOptions) => {
     refetchOnReconnect: false,
     refetchOnMount: false,
     refetchOnWindowFocus: options.refetchOnWindowFocus,
-    initialData: {
-      pages: [options.initialData],
-      pageParams: [1],
-    },
+    initialData: initialData,
     initialDataUpdatedAt: options.initialDataUpdatedAt,
     enabled: options.enabled ?? true,
   });

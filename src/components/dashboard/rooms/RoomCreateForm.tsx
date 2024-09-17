@@ -113,40 +113,38 @@ const RoomCreateForm = () => {
       <Form form={form} onSubmit={handleSubmit}>
         <Stack>
           <TextInput
-            required
-            label="Room Name"
-            placeholder="Enter room name"
-            description={`Room name must be unique, lowercase and contain at most ${MAX_ROOM_NAME_LENGTH} characters.`}
-            value={form.values.name}
+            {...form.getInputProps("name")}
             onChange={(event) =>
               form.setFieldValue(
                 "name",
                 event.currentTarget.value.toLowerCase()
               )
             }
+            name="name"
+            label="Room Name"
+            placeholder="Enter room name"
+            description={`Room name must be unique, lowercase and contain at most ${MAX_ROOM_NAME_LENGTH} characters.`}
             radius="md"
             maxLength={MAX_ROOM_NAME_LENGTH}
+            required
           />
           <PasswordInput
+            {...form.getInputProps("password")}
             label="Password"
             placeholder="Enter password (optional)"
             description="Leave empty if room is not password protected."
-            value={form.values.password}
-            onChange={(event) =>
-              form.setFieldValue("password", event.currentTarget.value)
-            }
             radius="md"
           />
           <NumberInput
-            required
+            {...form.getInputProps("slots")}
+            onChange={(value) => form.setFieldValue("slots", value as number)}
             label="Slots"
             placeholder="Enter slots"
             description={`Room's capacity including host. Minimum is ${MIN_ROOM_SLOTS} and maximum is ${MAX_ROOM_SLOTS}.`}
-            value={form.values.slots}
-            onChange={(value) => form.setFieldValue("slots", value as number)}
             radius="md"
             min={MIN_ROOM_SLOTS}
             max={MAX_ROOM_SLOTS}
+            required
           />
         </Stack>
 

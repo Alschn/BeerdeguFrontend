@@ -127,6 +127,10 @@ export default function RatingAddModal({
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
           <Select
+            {...form.getInputProps("beer")}
+            searchValue={beerSearch}
+            onSearchChange={setBeerSearch}
+            data={beerOptions}
             name="beer"
             label="Beer"
             placeholder="Select beer..."
@@ -135,74 +139,53 @@ export default function RatingAddModal({
             rightSection={
               beersQuery.isLoading ? <Loader size="xs" /> : undefined
             }
-            data={beerOptions}
-            searchValue={beerSearch}
-            onSearchChange={setBeerSearch}
-            value={form.values.beer}
-            onChange={(value) => form.setFieldValue("beer", value)}
             filter={() => true}
             searchable
             clearable
             required
           />
           <Textarea
+            {...form.getInputProps("color")}
             name="color"
             label="Color"
             placeholder="Describe beer's color"
-            value={form.values.color}
-            onChange={(event) =>
-              form.setFieldValue("color", event.currentTarget.value)
-            }
             required
           />
           <Textarea
+            {...form.getInputProps("foam")}
             name="foam"
             label="Foam"
             placeholder="Describe beer's foam"
-            value={form.values.foam}
-            onChange={(event) =>
-              form.setFieldValue("foam", event.currentTarget.value)
-            }
             required
           />
           <Textarea
+            {...form.getInputProps("smell")}
             name="smell"
             label="Smell"
             placeholder="Describe beer's smell"
-            value={form.values.smell}
-            onChange={(event) =>
-              form.setFieldValue("smell", event.currentTarget.value)
-            }
             required
           />
           <Textarea
+            {...form.getInputProps("taste")}
             name="taste"
             label="Taste"
             placeholder="Describe beer's taste"
-            value={form.values.taste}
-            onChange={(event) =>
-              form.setFieldValue("taste", event.currentTarget.value)
-            }
             required
           />
           <Textarea
+            {...form.getInputProps("opinion")}
             name="opinion"
             label="Opinion"
             placeholder="Describe your overall opinion"
-            value={form.values.opinion}
-            onChange={(event) =>
-              form.setFieldValue("opinion", event.currentTarget.value)
-            }
             minRows={3}
             required
           />
           <Select
+            {...form.getInputProps("note")}
+            data={NOTES}
             name="note"
             label="Note"
             placeholder="Your note"
-            data={NOTES}
-            value={form.values.note}
-            onChange={(value) => form.setFieldValue("note", value)}
             required
           />
           <Flex align="center" justify="space-between">
