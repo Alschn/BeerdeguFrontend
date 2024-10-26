@@ -6,8 +6,7 @@ import { env } from "~/env.mjs";
  * This is a proxy route that forwards requests to the API server.
  */
 async function handler(
-  req: NextRequest,
-  _res: NextResponse
+  req: NextRequest
 ): Promise<NextResponse<unknown> | Response> {
   if (!req.nextUrl.pathname.startsWith("/api/gateway")) {
     return NextResponse.json({ error: "Invalid proxy url" }, { status: 404 });
