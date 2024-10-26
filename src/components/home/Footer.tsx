@@ -136,7 +136,7 @@ export default function FooterLinks({ data }: FooterLinksProps) {
         className={classes.link}
         component="a"
         href={link.link}
-        onClick={(event) => event.preventDefault()}
+        onClick={(event: Event) => event.preventDefault()}
       >
         {link.label}
       </Text>
