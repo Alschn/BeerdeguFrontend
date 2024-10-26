@@ -1,4 +1,4 @@
-import { cookies } from "next/dist/client/components/headers";
+import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { env } from "~/env.mjs";
 
@@ -24,7 +24,7 @@ async function handler(
   const url = new URL(path, env.API_URL);
   url.search = params.toString();
 
-  const access = cookies().get("access");
+  const access = (await cookies()).get("access");
 
   let optionalBody = undefined;
   try {

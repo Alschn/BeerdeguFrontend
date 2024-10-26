@@ -6,7 +6,7 @@ import { env } from "~/env.mjs";
 const ROOMS_PAGE_SIZE = 10;
 
 export default async function DashboardRoomsPage() {
-  const access = cookies().get("access");
+  const access = (await cookies()).get("access");
   const r = await fetch(
     `${env.API_URL}/api/rooms/?page=1&page_size=${ROOMS_PAGE_SIZE}`,
     {

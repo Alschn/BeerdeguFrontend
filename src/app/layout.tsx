@@ -13,8 +13,8 @@ interface RootLayoutProps {
   children: ReactNode;
 }
 
-export default function RootLayout({ children }: RootLayoutProps) {
-  const cookiesStore = cookies();
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const cookiesStore = await cookies();
   const colorScheme = cookiesStore.get(COLOR_SCHEME_COOKIE);
   const accessToken = cookiesStore.get(ACCESS_TOKEN_KEY);
 

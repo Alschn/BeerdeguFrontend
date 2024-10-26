@@ -7,10 +7,12 @@ interface DashboardProtectedLayoutProps {
   children: ReactNode;
 }
 
-export default function DashboardProtectedLayout({
-  children,
-}: DashboardProtectedLayoutProps) {
-  const access = cookies().get(ACCESS_TOKEN_KEY);
+export default async function DashboardProtectedLayout(
+  {
+    children,
+  }: DashboardProtectedLayoutProps
+) {
+  const access = (await cookies()).get(ACCESS_TOKEN_KEY);
   if (!access) return redirect("/auth/login/?next=/dashboard");
   return children;
 }

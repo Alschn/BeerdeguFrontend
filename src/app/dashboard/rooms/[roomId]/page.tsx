@@ -2,21 +2,22 @@ import { cookies } from "next/headers";
 import RoomPage from "~/components/dashboard/room/RoomPage";
 import { env } from "~/env.mjs";
 
-interface RouteProps {
-  params: {
-    roomId: string;
-  };
-}
-
 interface IsInRoomResponse {
   message: string;
   is_host: boolean;
   token: string;
 }
 
-const DashboardRoomsRoomPage = async ({ params }: RouteProps) => {
+interface RouteProps {
+  params: Promise<{
+    roomId: string;
+  }>;
+}
+
+const DashboardRoomsRoomPage = async (props: RouteProps) => {
+  const params = await props.params;
   const roomName = params.roomId.toLowerCase();
-  const access = cookies().get("access");
+  const access = (await cookies()).get("access");
   const r = await fetch(
     `${env.NEXT_PUBLIC_API_URL}/api/rooms/${roomName}/in/`,
     {
