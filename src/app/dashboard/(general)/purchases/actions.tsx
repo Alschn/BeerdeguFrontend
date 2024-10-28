@@ -27,7 +27,7 @@ export async function getPurchases({
   page_size = 10,
   ...rest
 }: PurchasesParams) {
-  const access = cookies().get("access");
+  const access = (await cookies()).get("access");
 
   const paramsToString = stringifyParams({ page, page_size, ...rest });
   const params = new URLSearchParams(paramsToString);

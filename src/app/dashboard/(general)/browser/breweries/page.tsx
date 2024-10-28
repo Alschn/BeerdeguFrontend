@@ -6,7 +6,7 @@ import { env } from "~/env.mjs";
 const BREWERIES_PAGE_SIZE = 10;
 
 export default async function DashboardBrowserBreweriesPage() {
-  const access = cookies().get("access");
+  const access = (await cookies()).get("access");
   const r = await fetch(`${env.API_URL}/api/breweries/?page=1&page_size=${BREWERIES_PAGE_SIZE}`, {
     method: "GET",
     headers: {
