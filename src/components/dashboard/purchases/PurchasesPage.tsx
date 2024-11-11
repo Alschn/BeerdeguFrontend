@@ -56,6 +56,7 @@ export default function PurchasesPage({
       volume: undefined,
       purchased_at: undefined,
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch, ordering]);
 
   const {

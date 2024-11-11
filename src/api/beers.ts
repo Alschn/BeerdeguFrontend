@@ -15,10 +15,6 @@ export type BeersParams = {
   percentage__lte?: number;
   percentage__range?: string;
   percentage?: number;
-  volume_ml__gte?: number;
-  volume_ml__lte?: number;
-  volume_ml__range?: string;
-  volume_ml?: number;
   hop_rate__gte?: number;
   hop_rate__lte?: number;
   hop_rate__range?: string;
@@ -42,7 +38,6 @@ export interface BeerCreatePayload {
   brewery: number;
   style: number;
   percentage: number;
-  volume_ml: number;
   hop_rate: number | null;
   extract: number | null;
   IBU: number | null;

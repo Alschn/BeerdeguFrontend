@@ -40,7 +40,6 @@ type BeerAddForm = {
   brewery: string | null;
   style: string | null;
   percentage: "" | number;
-  volume_ml: "" | number;
   hop_rate: "" | number;
   extract: "" | number;
   IBU: "" | number;
@@ -54,7 +53,6 @@ const beerAddSchema = z.object({
   brewery: z.number({ coerce: true }),
   style: z.number({ coerce: true }),
   percentage: z.number({ coerce: true }),
-  volume_ml: z.number({ coerce: true }),
   hop_rate: z.number({ coerce: true }).nullable(),
   extract: z.number({ coerce: true }).nullable(),
   IBU: z.number({ coerce: true }).nullable(),
@@ -79,7 +77,6 @@ export default function BeerAddModal({
       brewery: "",
       style: "",
       percentage: "",
-      volume_ml: "",
       hop_rate: "",
       extract: "",
       IBU: "",
@@ -307,16 +304,6 @@ export default function BeerAddModal({
             step={0.1}
             min={0}
             max={40}
-            required
-          />
-          <NumberInput
-            {...form.getInputProps("volume_ml")}
-            name="volume_ml"
-            label="Volume [ml]"
-            placeholder="Enter beer's volume in milliliters"
-            step={10}
-            min={100}
-            max={5000}
             required
           />
           <NumberInput

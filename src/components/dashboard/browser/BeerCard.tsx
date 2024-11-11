@@ -4,7 +4,6 @@ import {
   CardSection,
   Box,
   Group,
-  Divider,
   Image,
   Text,
 } from "@mantine/core";
@@ -24,7 +23,7 @@ const useStyles = createStyles((theme) => ({
 
 interface BeerCardProps {
   beer: Beer;
-  onClick: (beer: Beer) => void
+  onClick: (beer: Beer) => void;
 }
 
 export default function BeerCard({ beer, onClick }: BeerCardProps) {
@@ -58,8 +57,6 @@ export default function BeerCard({ beer, onClick }: BeerCardProps) {
         <Text align="center">{beer.brewery.name}</Text>
         <Group position="center">
           <Text size="sm">{beer.percentage}%</Text>
-          <Divider orientation="vertical" />
-          <Text size="sm">{beer.volume_ml}ml</Text>
         </Group>
       </Box>
     </Card>

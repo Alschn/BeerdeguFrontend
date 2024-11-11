@@ -58,7 +58,6 @@ export interface Beer {
   style: BeerStyle;
   hops: Hop[];
   percentage: number;
-  volume_ml: number;
   extract: Nullable<number>;
   IBU: Nullable<number>;
   hop_rate: Nullable<number>;
@@ -73,7 +72,6 @@ export interface BeerDetail {
   style: BeerStyleEmbedded;
   hops: HopEmbedded[];
   percentage: number;
-  volume_ml: number;
   extract: Nullable<number>;
   IBU: Nullable<number>;
   hop_rate: Nullable<number>;
@@ -224,7 +222,6 @@ export interface BeerObject {
   id: number;
   name: string;
   percentage: number;
-  volume_ml: number;
   extract: number;
   IBU: number;
   hop_rate: number;
@@ -244,7 +241,6 @@ export interface BeerEmbedded {
   hops: number[];
   image: Nullable<string>;
   percentage: number;
-  volume_ml: number;
   hop_rate: Nullable<number>;
   extract: Nullable<number>;
   IBU: Nullable<number>;

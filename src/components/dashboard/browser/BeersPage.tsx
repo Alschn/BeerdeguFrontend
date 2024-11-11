@@ -41,7 +41,9 @@ interface BeersPageProps {
 }
 
 export default function BeersPage({ initialData }: BeersPageProps) {
-  const initialDataUpdateAtRef = useRef(new Date().getTime() - BEERS_QUERY_STALE_TIME);
+  const initialDataUpdateAtRef = useRef(
+    new Date().getTime() - BEERS_QUERY_STALE_TIME
+  );
 
   const [search, setSearch] = useState("");
   const [breweriesSearch, setBreweriesSearch] = useState("");
@@ -56,7 +58,6 @@ export default function BeersPage({ initialData }: BeersPageProps) {
   const [breweriesIds, setBreweriesIds] = useState<string[]>([]);
   const [hopsIds, setHopsIds] = useState<string[]>([]);
   const [stylesIds, setStylesIds] = useState<string[]>([]);
-  const [volumeRange, setVolumeRange] = useState<[number, number]>([1, 1000]);
   const [percentageRange, setPercentageRange] = useState<[number, number]>([
     0, 40,
   ]);
@@ -130,7 +131,6 @@ export default function BeersPage({ initialData }: BeersPageProps) {
       style__in: stylesIds.join(","),
       hops__in: hopsIds.join(","),
       percentage__range: percentageRange.join(","),
-      volume_ml__range: volumeRange.join(","),
       search: debouncedSearch,
       page_size: BEERS_PAGE_SIZE,
     } satisfies BeersParams,
@@ -294,33 +294,6 @@ export default function BeersPage({ initialData }: BeersPageProps) {
               }}
               id="percentage-range-slider"
               aria-labelledby="percentage-range-slider-label"
-            />
-          </Box>
-          <Box w={{ base: 200, lg: 240 }} px={{ base: 8, lg: 16 }}>
-            <Text
-              size="sm"
-              weight={600}
-              ml={-8}
-              component="label"
-              id="volume_ml-range-slider-label"
-            >
-              Volume [ml]
-            </Text>
-            <RangeSlider
-              label={(value) => `${value}ml`}
-              step={1}
-              min={1}
-              max={1000}
-              marks={[
-                { value: 1, label: "1ml" },
-                { value: 500, label: "500ml" },
-                { value: 1000, label: "1000ml" },
-              ]}
-              minRange={0}
-              value={volumeRange}
-              onChangeEnd={setVolumeRange}
-              id="volume_ml-range-slider"
-              aria-labelledby="volume_ml-range-slider-label"
             />
           </Box>
           <Flex sx={{ flexGrow: 0.9 }}></Flex>
