@@ -73,7 +73,7 @@ function ProtectedRoutesMiddleware(request: NextRequest) {
 
 // https://nextjs.org/docs/app/building-your-application/routing/middleware
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // todo: handle loops, some not trivial edge cases
   // maybe compose middlewares - make them sequential
 
