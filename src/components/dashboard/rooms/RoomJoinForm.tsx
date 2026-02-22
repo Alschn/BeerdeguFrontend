@@ -32,7 +32,7 @@ const useRoomJoinMutation = () => {
       });
       router.push(`/dashboard/rooms/${variables.name}/`);
     },
-    onError: () => {
+    onError: (_) => {
       // todo: better error handling
       notifications.show({
         title: "Error",
@@ -69,27 +69,26 @@ const RoomJoinForm = () => {
       <Form form={form} onSubmit={handleSubmit}>
         <Stack>
           <TextInput
-            required
-            label="Room Name"
-            placeholder="Enter room name"
-            description="Room name must be unique."
-            value={form.values.name}
+            {...form.getInputProps("name")}
             onChange={(event) =>
               form.setFieldValue(
                 "name",
                 event.currentTarget.value.toLowerCase()
               )
             }
+            name="name"
+            label="Room Name"
+            placeholder="Enter room name"
+            description="Room name must be unique."
             radius="md"
+            required
           />
           <PasswordInput
+            {...form.getInputProps("password")}
+            name="password"
             label="Password"
             placeholder="Enter password (optional)"
             description="Leave empty if you don't want to set password."
-            value={form.values.password}
-            onChange={(event) =>
-              form.setFieldValue("password", event.currentTarget.value)
-            }
             radius="md"
           />
         </Stack>

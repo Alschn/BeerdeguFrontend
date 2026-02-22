@@ -6,7 +6,7 @@ import { env } from "~/env.mjs";
 const BEER_STYLES_PAGE_SIZE = 10;
 
 export default async function DashboardBrowserStylesPage() {
-  const access = cookies().get("access");
+  const access = (await cookies()).get("access");
   const r = await fetch(
     `${env.API_URL}/api/styles/?page=1&page_size=${BEER_STYLES_PAGE_SIZE}`,
     {

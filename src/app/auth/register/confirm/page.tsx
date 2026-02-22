@@ -4,13 +4,14 @@ import { env } from "~/env.mjs";
 
 const CONFIRM_EMAIL_PATH = "/api/auth/register/confirm-email/";
 
-export default async function RegisterConfirmPage({
-  searchParams,
-}: {
-  searchParams?: { [key: string]: string | string[] | undefined };
-}) {
+export default async function RegisterConfirmPage(
+  props: {
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const key = searchParams?.key as string;
-  const access = cookies().get("access");
+  const access = (await cookies()).get("access");
 
   // todo: redirect button
   if (!key) return <h1>Invalid link</h1>;

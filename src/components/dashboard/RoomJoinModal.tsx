@@ -2,17 +2,17 @@ import {
   Button,
   Group,
   Modal,
-  Text,
-  type ModalProps,
   PasswordInput,
   Stack,
+  Text,
   Title,
+  type ModalProps,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useMutation } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useState } from "react";
+import { useState, type FormEvent } from "react";
+import { APIError, isApiError } from "~/api/errors";
 import { joinRoom } from "~/api/rooms";
 import { type Room } from "~/api/types";
 
@@ -35,14 +35,17 @@ const useRoomJoinMutation = () => {
       router.push(`/dashboard/rooms/${variables.name}/`);
     },
     onError: (error) => {
-      if (!(error instanceof AxiosError)) {
+      if (!isApiError(error)) {
         notifications.show({
-          title: "Something went wrong",
+          title: "Something went wrong!",
           message: "Try again later...",
           color: "red",
         });
         return;
       }
+
+      const _err = APIError.fromAxiosError(error);
+      // todo: handle error messsages
       notifications.show({
         title: "Could not join the room",
         message: "Make sure you have entered the correct password.",

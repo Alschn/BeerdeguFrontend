@@ -10,9 +10,9 @@ import {
   useQueryClient,
   type InfiniteData,
 } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { useMemo, useState, type ChangeEvent } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { APIError, isApiError } from "~/api/errors";
 import {
   createRating,
   deleteRating,
@@ -91,7 +91,7 @@ export default function RatingsPage({ initialData }: RatingsPageProps) {
       await client.invalidateQueries(["ratings"]);
     },
     onError: (error) => {
-      if (!(error instanceof AxiosError)) {
+      if (!isApiError(error)) {
         notifications.show({
           title: "Something went wrong!",
           message: "Try again later...",
@@ -99,6 +99,9 @@ export default function RatingsPage({ initialData }: RatingsPageProps) {
         });
         return;
       }
+
+      const _err = APIError.fromAxiosError(error);
+      // todo: handle validation errors
       notifications.show({
         title: "Could not create a new rating!",
         message: "Please check if your data is correct.",
@@ -140,13 +143,17 @@ export default function RatingsPage({ initialData }: RatingsPageProps) {
       );
     },
     onError: (error) => {
-      if (!(error instanceof AxiosError)) {
+      if (!isApiError(error)) {
         notifications.show({
           title: "Something went wrong!",
           message: "Try again later...",
+          color: "red",
         });
         return;
       }
+
+      const _err = APIError.fromAxiosError(error);
+      // todo: handle validation errors
       notifications.show({
         title: "Could not update rating!",
         message: "Please check if your data is correct.",
@@ -168,7 +175,7 @@ export default function RatingsPage({ initialData }: RatingsPageProps) {
       await client.invalidateQueries(["ratings"]);
     },
     onError: (error) => {
-      if (!(error instanceof AxiosError)) {
+      if (!isApiError(error)) {
         notifications.show({
           title: "Something went wrong!",
           message: "Try again later...",
@@ -176,6 +183,9 @@ export default function RatingsPage({ initialData }: RatingsPageProps) {
         });
         return;
       }
+
+      const _err = APIError.fromAxiosError(error);
+      // todo: handle error messages
       notifications.show({
         title: "Could not delete rating!",
         message: "Please try again later...",
@@ -264,10 +274,14 @@ export default function RatingsPage({ initialData }: RatingsPageProps) {
         </Flex>
       </Card>
       <InfiniteScroll
-        dataLength={initialData.count}
+        dataLength={ratings.length}
         next={handleFetchNextPage}
         hasMore={Boolean(hasNextPageRatings)}
-        loader={<></>}
+        loader={
+          <Center mt={16}>
+            <Loader />
+          </Center>
+        }
         scrollThreshold={0.95}
         scrollableTarget="ratings-container"
       >

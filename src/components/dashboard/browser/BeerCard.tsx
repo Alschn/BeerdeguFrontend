@@ -4,7 +4,6 @@ import {
   CardSection,
   Box,
   Group,
-  Divider,
   Image,
   Text,
 } from "@mantine/core";
@@ -22,14 +21,22 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export default function BeerCard({ beer }: { beer: Beer }) {
+interface BeerCardProps {
+  beer: Beer;
+  onClick: (beer: Beer) => void;
+}
+
+export default function BeerCard({ beer, onClick }: BeerCardProps) {
   const { classes } = useStyles();
+
+  const handleClick = () => onClick(beer);
 
   return (
     <Card
       className={classes.card}
       component="article"
       id={`beer-${beer.id}-card`}
+      onClick={handleClick}
     >
       <CardSection p="lg" component="header">
         <Image
@@ -50,8 +57,6 @@ export default function BeerCard({ beer }: { beer: Beer }) {
         <Text align="center">{beer.brewery.name}</Text>
         <Group position="center">
           <Text size="sm">{beer.percentage}%</Text>
-          <Divider orientation="vertical" />
-          <Text size="sm">{beer.volume_ml}ml</Text>
         </Group>
       </Box>
     </Card>

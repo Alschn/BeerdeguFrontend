@@ -1,15 +1,16 @@
 "use client";
 
 import { Button, Flex, Paper, PasswordInput, Stack, Text } from "@mantine/core";
-import { useForm } from "@mantine/form";
+import { useForm, zodResolver } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { useMutation } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
+import { z } from "zod";
 import {
-  type ConfirmResetPasswordPayload,
   confirmResetPassword,
+  type ConfirmResetPasswordPayload,
 } from "~/api/auth";
+import { APIError, isApiError } from "~/api/errors";
 
 const useConfirmResetPasswordMutation = () => {
   const router = useRouter();
@@ -26,18 +27,20 @@ const useConfirmResetPasswordMutation = () => {
       router.push("/auth/login");
     },
     onError: (error) => {
-      if (error instanceof AxiosError) {
+      if (!isApiError(error)) {
         notifications.show({
           title: "Something went wrong",
-          message: "Password reset failed...",
+          message: "Please try again later...",
           color: "red",
         });
         return;
       }
 
+      const _err = APIError.fromAxiosError(error);
+      // todo: handle error messages
       notifications.show({
         title: "Something went wrong",
-        message: "Please try again later...",
+        message: "Password reset failed...",
         color: "red",
       });
     },
@@ -48,6 +51,24 @@ type FormValues = {
   new_password1: string;
   new_password2: string;
 };
+
+const PASSWORD_MIN_LENGTH = 6;
+const PASSWORD_MIN_LENGTH_MESSAGE = `Password should include at least ${PASSWORD_MIN_LENGTH} characters`;
+const PASSWORDS_DO_NOT_MATCH_MESSAGE = "Passwords do not match";
+
+const passwordResetConfirmSchema = z
+  .object({
+    new_password1: z
+      .string()
+      .min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_MESSAGE),
+    new_password2: z
+      .string()
+      .min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_MESSAGE),
+  })
+  .refine((data) => data.new_password1 === data.new_password2, {
+    path: ["new_password2"],
+    message: PASSWORDS_DO_NOT_MATCH_MESSAGE,
+  });
 
 interface PasswordResetConfirmProps {
   uid: string;
@@ -60,14 +81,7 @@ const PasswordResetConfirm = ({ uid, token }: PasswordResetConfirmProps) => {
       new_password1: "",
       new_password2: "",
     },
-    validate: {
-      new_password1: (val) =>
-        val.length <= 6
-          ? "Password should include at least 6 characters"
-          : null,
-      new_password2: (val, values) =>
-        val !== values.new_password1 ? "Passwords do not match" : null,
-    },
+    validate: zodResolver(passwordResetConfirmSchema),
   });
 
   const mutation = useConfirmResetPasswordMutation();
@@ -89,32 +103,23 @@ const PasswordResetConfirm = ({ uid, token }: PasswordResetConfirmProps) => {
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
           <PasswordInput
-            required
+            {...form.getInputProps("new_password1")}
+            name="password"
             label="Password"
             placeholder="Enter new password"
-            value={form.values.new_password1}
-            onChange={(event) =>
-              form.setFieldValue("new_password1", event.currentTarget.value)
-            }
-            error={
-              form.errors.new_password1 &&
-              "Password should include at least 6 characters"
-            }
+            description={PASSWORD_MIN_LENGTH_MESSAGE}
+            minLength={PASSWORD_MIN_LENGTH}
             radius="md"
+            required
           />
           <PasswordInput
-            required
+            {...form.getInputProps("new_password2")}
             label="Confirm Password"
             placeholder="Enter new password"
-            value={form.values.new_password2}
-            onChange={(event) =>
-              form.setFieldValue("new_password2", event.currentTarget.value)
-            }
-            error={
-              form.errors.new_password2 &&
-              "Password should include at least 6 characters"
-            }
+            description={PASSWORD_MIN_LENGTH_MESSAGE}
+            minLength={PASSWORD_MIN_LENGTH}
             radius="md"
+            required
           />
         </Stack>
 

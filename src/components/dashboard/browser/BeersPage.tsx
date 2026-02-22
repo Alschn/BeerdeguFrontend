@@ -12,44 +12,39 @@ import {
   MultiSelect,
   RangeSlider,
   Text,
-  TextInput
+  TextInput,
 } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
+import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import { useMemo, useState, type ChangeEvent } from "react";
+import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { getBeerStyles, type BeerStylesParams } from "~/api/beer_styles";
-import {
-  createBeer,
-  getBeers,
-  type BeerCreatePayload,
-  type BeersParams,
-} from "~/api/beers";
-import { getBreweries, type BreweriesParams } from "~/api/breweries";
-import { getHops, type HopsParams } from "~/api/hops";
+import { type BeerCreatePayload, type BeersParams } from "~/api/beers";
+import { APIError, isApiError } from "~/api/errors";
 import type { Beer, PaginatedResponseData } from "~/api/types";
-import { getNextPageParam } from "~/utils/tanstack-query";
+import { useBeerStylesPage, useBreweriesPage, useHopsPage } from "~/hooks/api";
+import { useBeerAddMutation, useBeers } from "~/hooks/api/beers";
+import BeerDetailsModalBody from "../room/BeerDetailsModalBody";
 import BeerAddModal from "./BeerAddModal";
 import BeerCard from "./BeerCard";
-
-interface BeersPageProps {
-  initialData: PaginatedResponseData<Beer>;
-}
 
 const BEERS_PAGE_SIZE = 24;
 
 // initialData, initialDataUpdatedAt interactions
 // https://tanstack.com/query/latest/docs/react/guides/initial-query-data
 
+const BEERS_QUERY_STALE_TIME = 30 * 1000;
+
+interface BeersPageProps {
+  initialData: PaginatedResponseData<Beer>;
+}
+
 export default function BeersPage({ initialData }: BeersPageProps) {
+  const initialDataUpdateAtRef = useRef(
+    new Date().getTime() - BEERS_QUERY_STALE_TIME
+  );
+
   const [search, setSearch] = useState("");
   const [breweriesSearch, setBreweriesSearch] = useState("");
   const [beerStylesSearch, setBeerStylesSearch] = useState("");
@@ -63,7 +58,6 @@ export default function BeersPage({ initialData }: BeersPageProps) {
   const [breweriesIds, setBreweriesIds] = useState<string[]>([]);
   const [hopsIds, setHopsIds] = useState<string[]>([]);
   const [stylesIds, setStylesIds] = useState<string[]>([]);
-  const [volumeRange, setVolumeRange] = useState<[number, number]>([1, 1000]);
   const [percentageRange, setPercentageRange] = useState<[number, number]>([
     0, 40,
   ]);
@@ -74,114 +68,76 @@ export default function BeersPage({ initialData }: BeersPageProps) {
     setSearch(e.currentTarget.value);
   };
 
-  const { isLoading: isLoadingBreweries, data: dataBreweries } = useQuery({
-    queryKey: [
-      "breweries",
-      {
+  const { isLoading: isLoadingBreweries, data: dataBreweries } =
+    useBreweriesPage({
+      params: {
         search: debouncedBreweriesSearch,
-        page_size: 25,
-      } satisfies BreweriesParams,
-    ] as const,
-    queryFn: async ({ queryKey }) => {
-      const res = await getBreweries({ ...queryKey[1] });
-      return res.data;
-    },
-    staleTime: 10 * 60 * 1000,
-    refetchOnWindowFocus: false,
-  });
+        page_size: 50,
+      },
+      staleTime: 10 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    });
 
-  const { isLoading: isLoadingBeerStyles, data: dataBeerStyles } = useQuery({
-    queryKey: [
-      "beer_styles",
-      {
+  const { isLoading: isLoadingBeerStyles, data: dataBeerStyles } =
+    useBeerStylesPage({
+      params: {
         name__icontains: debouncedBeerStylesSearch,
-        page_size: 25,
-      } satisfies BeerStylesParams,
-    ] as const,
-    queryFn: async ({ queryKey }) => {
-      const res = await getBeerStyles({ ...queryKey[1] });
-      return res.data;
-    },
-    staleTime: 10 * 60 * 1000,
-    refetchOnWindowFocus: false,
-  });
+        page_size: 50,
+      },
+      staleTime: 10 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    });
 
-  const { isLoading: isLoadingHops, data: dataHops } = useQuery({
-    queryKey: [
-      "hops",
-      {
-        name__icontains: debouncedHopsSearch,
-        page_size: 25,
-      } satisfies HopsParams,
-    ] as const,
-    queryFn: async ({ queryKey }) => {
-      const res = await getHops({ ...queryKey[1] });
-      return res.data;
+  const { isLoading: isLoadingHops, data: dataHops } = useHopsPage({
+    params: {
+      name__icontains: debouncedHopsSearch,
+      page_size: 50,
     },
     staleTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
   const breweriesOptions = useMemo(() => {
-    return (
-      dataBreweries?.results.map((brewery) => ({
-        value: String(brewery.id),
-        label: brewery.name,
-      })) || []
-    );
+    if (!dataBreweries) return [];
+    return dataBreweries.results.map((brewery) => ({
+      value: String(brewery.id),
+      label: brewery.name,
+    }));
   }, [dataBreweries]);
 
   const beerStylesOptions = useMemo(() => {
-    return (
-      dataBeerStyles?.results.map((style) => ({
-        value: String(style.id),
-        label: style.name,
-      })) || []
-    );
+    if (!dataBeerStyles) return [];
+    return dataBeerStyles.results.map((style) => ({
+      value: String(style.id),
+      label: style.name,
+    }));
   }, [dataBeerStyles]);
 
   const hopsOptions = useMemo(() => {
-    return (
-      dataHops?.results.map((hop) => ({
-        value: String(hop.id),
-        label: hop.name,
-      })) || []
-    );
+    if (!dataHops) return [];
+    return dataHops.results.map((hop) => ({
+      value: String(hop.id),
+      label: hop.name,
+    }));
   }, [dataHops]);
-
-  const filters = {
-    brewery__in: breweriesIds.join(","),
-    style__in: stylesIds.join(","),
-    hops__in: hopsIds.join(","),
-    percentage__range: percentageRange.join(","),
-    volume_ml__range: volumeRange.join(","),
-    search: debouncedSearch,
-    page_size: BEERS_PAGE_SIZE,
-  } satisfies BeersParams;
 
   const {
     hasNextPage: hasNextPageBeers,
     fetchNextPage: fetchNextPageBeers,
     data: dataBeers,
-  } = useInfiniteQuery({
-    queryKey: ["beers", filters] as const,
-    queryFn: async ({ pageParam = 1, queryKey }) => {
-      const res = await getBeers({
-        page: pageParam as number,
-        ...queryKey[1],
-      });
-      return res.data;
-    },
-    staleTime: 30 * 1000,
-    getNextPageParam: getNextPageParam,
-    refetchOnReconnect: false,
-    refetchOnMount: false,
+  } = useBeers({
+    params: {
+      brewery__in: breweriesIds.join(","),
+      style__in: stylesIds.join(","),
+      hops__in: hopsIds.join(","),
+      percentage__range: percentageRange.join(","),
+      search: debouncedSearch,
+      page_size: BEERS_PAGE_SIZE,
+    } satisfies BeersParams,
+    staleTime: BEERS_QUERY_STALE_TIME,
     refetchOnWindowFocus: false,
-    initialData: {
-      pages: [initialData],
-      pageParams: [1],
-    },
-    initialDataUpdatedAt: new Date().getTime() - 30 * 1000,
+    initialData: initialData,
+    initialDataUpdatedAt: initialDataUpdateAtRef.current,
   });
 
   const results = useMemo(() => {
@@ -196,21 +152,17 @@ export default function BeersPage({ initialData }: BeersPageProps) {
 
   // todo: only let admins (or other priviliged users) add beers
 
-  const client = useQueryClient();
-
-  const addMutation = useMutation({
-    mutationFn: (data: BeerCreatePayload) => createBeer(data),
-    onSuccess: async () => {
+  const addMutation = useBeerAddMutation({
+    onSuccess: () => {
       notifications.show({
         title: "Beer created",
         message: "Beer was successfully created",
         color: "green",
       });
-      await client.invalidateQueries(["beers"]);
       addModalHandlers.close();
     },
     onError: (error) => {
-      if (!(error instanceof AxiosError)) {
+      if (!isApiError(error)) {
         notifications.show({
           title: "Something went wrong!",
           message: "Try again later...",
@@ -218,6 +170,9 @@ export default function BeersPage({ initialData }: BeersPageProps) {
         });
         return;
       }
+
+      const _err = APIError.fromAxiosError(error);
+      // todo: handle validation errors
       notifications.show({
         title: "Failed to add beer",
         message: "Make sure that provided data is correct",
@@ -228,6 +183,18 @@ export default function BeersPage({ initialData }: BeersPageProps) {
 
   const handleAddBeer = (data: BeerCreatePayload) => {
     addMutation.mutate(data);
+  };
+
+  const openDetailsModal = (beer: Beer) => {
+    modals.open({
+      title: (
+        <Text size="xl" weight={600}>
+          {beer.name}
+        </Text>
+      ),
+      children: <BeerDetailsModalBody beer={beer} />,
+      centered: true,
+    });
   };
 
   return (
@@ -249,7 +216,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
             label="Breweries"
             placeholder="Select breweries"
             nothingFound="No breweries found"
-            limit={30}
+            limit={50}
             maxDropdownHeight={200}
             w={{ base: 200, lg: 300 }}
             dropdownPosition="bottom"
@@ -267,7 +234,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
             label="Beer styles"
             placeholder="Select beer styles"
             nothingFound="No beer styles found"
-            limit={30}
+            limit={50}
             maxDropdownHeight={200}
             dropdownPosition="bottom"
             w={{ base: 200, lg: 300 }}
@@ -285,7 +252,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
             label="Hops"
             placeholder="Select hops"
             nothingFound="No hops found"
-            limit={30}
+            limit={50}
             maxDropdownHeight={200}
             dropdownPosition="bottom"
             w={{ base: 200, lg: 300 }}
@@ -329,33 +296,6 @@ export default function BeersPage({ initialData }: BeersPageProps) {
               aria-labelledby="percentage-range-slider-label"
             />
           </Box>
-          <Box w={{ base: 200, lg: 240 }} px={{ base: 8, lg: 16 }}>
-            <Text
-              size="sm"
-              weight={600}
-              ml={-8}
-              component="label"
-              id="volume_ml-range-slider-label"
-            >
-              Volume [ml]
-            </Text>
-            <RangeSlider
-              label={(value) => `${value}ml`}
-              step={1}
-              min={1}
-              max={1000}
-              marks={[
-                { value: 1, label: "1ml" },
-                { value: 500, label: "500ml" },
-                { value: 1000, label: "1000ml" },
-              ]}
-              minRange={0}
-              value={volumeRange}
-              onChangeEnd={setVolumeRange}
-              id="volume_ml-range-slider"
-              aria-labelledby="volume_ml-range-slider-label"
-            />
-          </Box>
           <Flex sx={{ flexGrow: 0.9 }}></Flex>
           <TextInput
             name="search"
@@ -378,7 +318,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
         </Flex>
       </Card>
       <InfiniteScroll
-        dataLength={initialData.count}
+        dataLength={results.length}
         next={handleFetchMoreBeers}
         hasMore={Boolean(hasNextPageBeers)}
         loader={
@@ -399,7 +339,7 @@ export default function BeersPage({ initialData }: BeersPageProps) {
               xl={3}
               key={`beers-beer-${beer.id}`}
             >
-              <BeerCard beer={beer} />
+              <BeerCard beer={beer} onClick={openDetailsModal} />
             </Grid.Col>
           ))}
         </Grid>

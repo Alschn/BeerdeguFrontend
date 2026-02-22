@@ -12,16 +12,15 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
+import { usePathname } from "next/navigation";
 import type { FC, ReactNode } from "react";
 import { useEffect, useState } from "react";
+import type { User } from "~/api/types";
 import ColorModeToggle from "~/components/ColorModeToggle";
-import { useAuth } from "~/components/context/auth";
-import DashboardNavbar from "~/components/dashboard/Navbar";
-import NotificationsToggle from "~/components/dashboard/NotificationsToggle";
-import SettingsToggle from "~/components/dashboard/SettingsToggle";
 import UserMenu from "~/components/UserMenu";
+import { useAuth } from "~/components/context/auth";
 import DashboardBreadcrumbs from "~/components/dashboard/Breadcrumbs";
-import { usePathname } from "next/navigation";
+import DashboardNavbar from "~/components/dashboard/Navbar";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -50,7 +49,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ children }) => {
               ? theme.colors.dark[8]
               : theme.colors.gray[0],
           [theme.fn.smallerThan(theme.breakpoints.sm)]: {
-            padding: "calc(50px + 1rem) 0.5rem 0.5rem 0.5rem"
+            padding: "calc(50px + 1rem) 0.5rem 0.5rem 0.5rem",
           },
           [theme.fn.largerThan(theme.breakpoints.sm)]: {
             paddingTop: "1rem",
@@ -107,7 +106,7 @@ function HeaderBar({
   isNavbarOpen,
   toggleNavbar,
 }: {
-  user: { username: string } | null;
+  user: User | null;
   isNavbarOpen: boolean;
   toggleNavbar: () => void;
 }) {
@@ -143,12 +142,8 @@ function HeaderBar({
         <Divider orientation="vertical" />
         {/* <NotificationsToggle />
         <SettingsToggle /> */}
-        <UserMenu
-          user={{
-            name: user?.username ?? "",
-            image: "",
-          }}
-        />
+
+        {!!user && <UserMenu user={user} />}
       </Group>
     </Flex>
   );
@@ -161,7 +156,7 @@ function HeaderMobile({
 }: {
   isNavbarOpen: boolean;
   toggleNavbar: () => void;
-  user: { username: string } | null;
+  user: User | null;
 }) {
   const theme = useMantineTheme();
 
@@ -185,12 +180,7 @@ function HeaderMobile({
           <ColorModeToggle />
           {/* <NotificationsToggle />
           <SettingsToggle /> */}
-          <UserMenu
-            user={{
-              name: user?.username ?? "",
-              image: "",
-            }}
-          />
+          {!!user && <UserMenu user={user} />}
         </Group>
       </Flex>
     </Header>

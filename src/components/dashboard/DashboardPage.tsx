@@ -1,18 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  Divider,
-  Flex,
-  Grid,
-  Text,
-  Title,
-  useMantineTheme,
-} from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { Grid } from "@mantine/core";
 import {
   IconBeer,
   IconCalculator,
@@ -20,34 +8,25 @@ import {
   IconHomePlus,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
+import { ArcElement, Chart as ChartJS, Legend, Tooltip } from "chart.js";
 import { useState } from "react";
 import { getDashboardStatistics } from "~/api/statistics";
+import CurrentRoomsAlert from "./CurrentRoomsAlert";
 import StatisticsCard from "./StatisticsCard";
-import { IconAlertCircle } from "@tabler/icons-react";
+import StatisticsHeader from "./StatisticsHeader";
+import BeerStylesChartCard from "./dashboard/BeerStylesChartCard";
+import BreweriesStylesChartCard from "./dashboard/BreweriesChartCard";
+import RecentlyConsumedBeersCard from "./dashboard/RecentlyConsumedBeersCard";
+import { formatDateParam, getFirstAndLastDayOfMonth } from "~/utils/dates";
 
-const intl = new Intl.DateTimeFormat("en", { month: "long" });
-
-function formatDateParam(date: Date) {
-  let month = `${date.getMonth() + 1}`;
-  let day = `${date.getDate()}`;
-  const year = date.getFullYear();
-  if (month.length < 2) month = `0${month}`;
-  if (day.length < 2) day = `0${day}`;
-  return [year, month, day].join("-");
-}
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function DashboardPage() {
   // todo: initial data from server side fetch (?)
-
-  const [datesRange] = useState<[Date, Date]>(() => {
-    const firstDayOfMonth = new Date();
-    firstDayOfMonth.setDate(1);
-    const lastDayOfMonth = new Date(firstDayOfMonth);
-    lastDayOfMonth.setMonth(lastDayOfMonth.getMonth() + 1);
-    lastDayOfMonth.setDate(lastDayOfMonth.getDate() - 1);
-    return [firstDayOfMonth, lastDayOfMonth];
+  
+  const [datesRange, setDatesRange] = useState<[Date, Date]>(() => {
+    return [...getFirstAndLastDayOfMonth()];
   });
-  const [lowerDate, upperDate] = datesRange;
 
   const { data: stats, isLoading: isLoadingStats } = useQuery({
     queryKey: ["statistics-dashboard", datesRange] as const,
@@ -62,94 +41,20 @@ export default function DashboardPage() {
     refetchOnWindowFocus: false,
   });
 
-  // todo: implement date filter modal
-  const [isDateFilterModalOpen, dateFilterModalHandlers] = useDisclosure(false);
-
-  const handleOpenDateFilterModal = () => {
-    // todo: implement
-  };
-
   return (
     <Grid>
       {!!stats && stats.current_rooms.length > 0 && (
-        <Flex gap={8}>
-          <Alert
-            icon={<IconAlertCircle />}
-            title={
-              <Text size="lg" fw={600}>
-                You are currently in {stats.current_rooms.length}{" "}
-                {stats.current_rooms.length === 1 ? "room" : "rooms"}
-              </Text>
-            }
-          >
-            <Flex direction="column" justify="space-between" gap={4} mb={8}>
-              <Text fw={600}>
-                Being inactive for more than a minute will result in you being
-                kicked out of the room.
-              </Text>
-              <Text fw={600}>
-                Enter the room to continue your tasting session or to leave it.
-              </Text>
-            </Flex>
-            <Flex direction="column" gap={12}>
-              {stats.current_rooms.map((room) => (
-                <Flex
-                  align="center"
-                  gap={16}
-                  w="100%"
-                  key={`alert-room-${room.id}`}
-                >
-                  <Text size="lg" fw={600}>
-                    {room.name}
-                  </Text>
-                  <a href={`/dashboard/rooms/${room.name}`}>
-                    <Button color="blue" size="xs" radius="xl">
-                      Join
-                    </Button>
-                  </a>
-                </Flex>
-              ))}
-            </Flex>
-          </Alert>
-        </Flex>
+        <CurrentRoomsAlert rooms={stats.current_rooms} />
       )}
       <Grid.Col span={12}>
-        <Card radius="lg">
-          <Title order={1} mb={4}>
-            Your statistics
-          </Title>
-          <Flex align="center" gap={16}>
-            <Box>
-              <Text display="inline-block" size="lg" color="dimmed" fw={600}>
-                {intl.format(lowerDate)}
-              </Text>{" "}
-              <Text display="inline-block" size="lg" fw={700}>
-                {lowerDate.getFullYear()}
-              </Text>
-              {" - "}
-              <Text display="inline-block" size="lg" color="dimmed" fw={600}>
-                {intl.format(upperDate)}
-              </Text>{" "}
-              <Text display="inline-block" size="lg" fw={700}>
-                {upperDate.getFullYear()}
-              </Text>
-            </Box>
-            <Button
-              radius="xl"
-              variant="outline"
-              size="xs"
-              // todo: remove when modal is implemented
-              disabled
-              onClick={handleOpenDateFilterModal}
-            >
-              Change date filter
-            </Button>
-          </Flex>
-        </Card>
+        <StatisticsHeader
+          datesRange={datesRange}
+          onDatesRangeChange={setDatesRange}
+        />
       </Grid.Col>
       <Grid.Col span={12}>
         <Grid>
-          <Grid.Col span={12} sm={6} lg={3}>
+          <Grid.Col span={6} sm={6} lg={3}>
             <StatisticsCard
               title="Beers consumed"
               value={stats?.consumed_beers_count ?? "-"}
@@ -157,7 +62,7 @@ export default function DashboardPage() {
               isLoading={isLoadingStats}
             />
           </Grid.Col>
-          <Grid.Col span={12} sm={6} lg={3}>
+          <Grid.Col span={6} sm={6} lg={3}>
             <StatisticsCard
               title="Average rating"
               value={stats?.average_rating ?? "-"}
@@ -165,7 +70,7 @@ export default function DashboardPage() {
               isLoading={isLoadingStats}
             />
           </Grid.Col>
-          <Grid.Col span={12} sm={6} lg={3}>
+          <Grid.Col span={6} sm={6} lg={3}>
             <StatisticsCard
               title="Rooms joined"
               value={stats?.rooms_joined_count ?? "-"}
@@ -173,7 +78,7 @@ export default function DashboardPage() {
               isLoading={isLoadingStats}
             />
           </Grid.Col>
-          <Grid.Col span={12} sm={6} lg={3}>
+          <Grid.Col span={6} sm={6} lg={3}>
             <StatisticsCard
               title="Rooms created"
               value={stats?.rooms_created_count ?? "-"}
@@ -182,6 +87,24 @@ export default function DashboardPage() {
             />
           </Grid.Col>
         </Grid>
+      </Grid.Col>
+      <Grid.Col span={12} xs={6} md={12} lg={4}>
+        <RecentlyConsumedBeersCard
+          beers={stats?.recently_consumed_beers}
+          isLoading={isLoadingStats}
+        />
+      </Grid.Col>
+      <Grid.Col span={12} xs={6} md={12} lg={4}>
+        <BeerStylesChartCard
+          chartData={stats?.beer_styles_distribution_chart}
+          isLoading={isLoadingStats}
+        />
+      </Grid.Col>
+      <Grid.Col span={12} xs={6} md={12} lg={4}>
+        <BreweriesStylesChartCard
+          chartData={stats?.breweries_distribution_chart}
+          isLoading={isLoadingStats}
+        />
       </Grid.Col>
     </Grid>
   );

@@ -32,7 +32,8 @@ const useLogoutMutation = () => {
       router.push("/auth/login");
       router.refresh();
     },
-    onError: () => {
+    onError: (_) => {
+      // todo: handle error messages
       notifications.show({
         title: "Logout failed",
         message: "Please try again later...",

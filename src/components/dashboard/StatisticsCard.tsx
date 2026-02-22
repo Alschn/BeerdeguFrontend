@@ -15,8 +15,14 @@ export default function StatisticsCard({
   isLoading: boolean;
 }) {
   return (
-    <Card radius="lg" py={20} mih={88}>
-      <Flex align="center" gap={12}>
+    <Card
+      sx={{ display: "flex" }}
+      p={{ base: 12, sm: 16 }}
+      mih={72}
+      radius="lg"
+      h="100%"
+    >
+      <Flex align="center" gap={16}>
         {isLoading ? (
           <StatisticsCardSkeleton />
         ) : (
@@ -31,7 +37,7 @@ export default function StatisticsCard({
               </Title>
               {!!description && (
                 <Title order={6} color="dimmed" fw={500}>
-                  {title}
+                  {description}
                 </Title>
               )}
             </Box>

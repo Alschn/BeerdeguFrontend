@@ -16,6 +16,7 @@ import {
   IconDeviceDesktopAnalytics,
   IconGauge,
   // IconSettings,
+  IconShoppingCart,
   IconBeer,
   IconUser,
   IconX,
@@ -27,6 +28,7 @@ import type { FC } from "react";
 
 const links = [
   { icon: IconGauge, label: "Dashboard", link: "/dashboard" },
+  { icon: IconShoppingCart, label: "Your Purchases", link: "/dashboard/purchases" },
   { icon: IconBeer, label: "Your Ratings", link: "/dashboard/ratings" },
   {
     icon: IconDeviceDesktopAnalytics,

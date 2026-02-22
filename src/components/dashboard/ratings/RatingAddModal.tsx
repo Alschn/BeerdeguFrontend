@@ -1,32 +1,21 @@
 import {
-  Modal,
-  Stack,
-  type ModalProps,
-  Textarea,
-  Select,
   Button,
-  Group,
-  Avatar,
-  Text,
-  Loader,
   Flex,
-  Badge,
+  Loader,
+  Modal,
+  type ModalProps,
   ScrollArea,
+  Select,
+  Stack,
+  Text,
+  Textarea,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDebouncedValue } from "@mantine/hooks";
-import { IconBottle } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
-import {
-  type ComponentPropsWithoutRef,
-  forwardRef,
-  useMemo,
-  useState,
-  useLayoutEffect,
-} from "react";
-import { type BeersParams, getBeers } from "~/api/beers";
+import { useLayoutEffect, useMemo, useState } from "react";
 import { type CreateRatingPayload } from "~/api/ratings";
-import BeerRowItem from "./BeerRowItem";
+import { useBeersPage } from "~/hooks/api/beers";
+import BeerSelectItem from "./BeerSelectItem";
 
 const NOTES = [
   { value: "1", label: "1" },
@@ -56,27 +45,6 @@ type CreateRatingForm = {
   note: string | null;
 };
 
-interface BeerSelectItemProps extends ComponentPropsWithoutRef<"div"> {
-  image: string | null;
-  label: string;
-  description: string;
-  badge: string;
-}
-
-const BeerSelectItem = forwardRef<HTMLDivElement, BeerSelectItemProps>(
-  ({ image, label, description, badge, ...rest }: BeerSelectItemProps, ref) => (
-    <div ref={ref} {...rest}>
-      <BeerRowItem
-        image={image}
-        label={label}
-        description={description}
-        badge={badge}
-      />
-    </div>
-  )
-);
-BeerSelectItem.displayName = "BeerSelectItem";
-
 export default function RatingAddModal({
   opened,
   onClose,
@@ -86,14 +54,10 @@ export default function RatingAddModal({
   const [beerSearch, setBeerSearch] = useState("");
   const [debouncedBeerSearch] = useDebouncedValue(beerSearch, 500);
 
-  const beersQuery = useQuery({
-    queryKey: [
-      "beers",
-      { search: debouncedBeerSearch, page_size: 20 } satisfies BeersParams,
-    ] as const,
-    queryFn: async ({ queryKey }) => {
-      const res = await getBeers(queryKey[1]);
-      return res.data;
+  const beersQuery = useBeersPage({
+    params: {
+      search: debouncedBeerSearch,
+      page_size: 50,
     },
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,
@@ -163,6 +127,10 @@ export default function RatingAddModal({
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
           <Select
+            {...form.getInputProps("beer")}
+            searchValue={beerSearch}
+            onSearchChange={setBeerSearch}
+            data={beerOptions}
             name="beer"
             label="Beer"
             placeholder="Select beer..."
@@ -171,74 +139,53 @@ export default function RatingAddModal({
             rightSection={
               beersQuery.isLoading ? <Loader size="xs" /> : undefined
             }
-            data={beerOptions}
-            searchValue={beerSearch}
-            onSearchChange={setBeerSearch}
-            value={form.values.beer}
-            onChange={(value) => form.setFieldValue("beer", value)}
             filter={() => true}
             searchable
             clearable
             required
           />
           <Textarea
+            {...form.getInputProps("color")}
             name="color"
             label="Color"
             placeholder="Describe beer's color"
-            value={form.values.color}
-            onChange={(event) =>
-              form.setFieldValue("color", event.currentTarget.value)
-            }
             required
           />
           <Textarea
+            {...form.getInputProps("foam")}
             name="foam"
             label="Foam"
             placeholder="Describe beer's foam"
-            value={form.values.foam}
-            onChange={(event) =>
-              form.setFieldValue("foam", event.currentTarget.value)
-            }
             required
           />
           <Textarea
+            {...form.getInputProps("smell")}
             name="smell"
             label="Smell"
             placeholder="Describe beer's smell"
-            value={form.values.smell}
-            onChange={(event) =>
-              form.setFieldValue("smell", event.currentTarget.value)
-            }
             required
           />
           <Textarea
+            {...form.getInputProps("taste")}
             name="taste"
             label="Taste"
             placeholder="Describe beer's taste"
-            value={form.values.taste}
-            onChange={(event) =>
-              form.setFieldValue("taste", event.currentTarget.value)
-            }
             required
           />
           <Textarea
+            {...form.getInputProps("opinion")}
             name="opinion"
             label="Opinion"
             placeholder="Describe your overall opinion"
-            value={form.values.opinion}
-            onChange={(event) =>
-              form.setFieldValue("opinion", event.currentTarget.value)
-            }
             minRows={3}
             required
           />
           <Select
+            {...form.getInputProps("note")}
+            data={NOTES}
             name="note"
             label="Note"
             placeholder="Your note"
-            data={NOTES}
-            value={form.values.note}
-            onChange={(value) => form.setFieldValue("note", value)}
             required
           />
           <Flex align="center" justify="space-between">

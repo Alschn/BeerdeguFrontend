@@ -1,10 +1,8 @@
 import {
   ActionIcon,
   Avatar,
-  Box,
   Burger,
   Divider,
-  Flex,
   Group,
   Header,
   Text,
@@ -101,12 +99,7 @@ const RoomHeader = ({ onDrawerToggle, isDrawerOpen }: RoomHeaderProps) => {
 
           <ColorModeToggle />
 
-          <UserMenu
-            user={{
-              name: user?.username || "",
-              image: "",
-            }}
-          />
+          {!!user && <UserMenu user={user} />}
         </Group>
       </div>
     </Header>

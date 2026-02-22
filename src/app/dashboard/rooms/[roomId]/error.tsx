@@ -4,7 +4,7 @@ import { Button, Container, Flex, Stack, Title } from "@mantine/core";
 import { useParams } from "next/navigation";
 import BeerdeguLogo from "~/components/BeerdeguLogo";
 import NextLink from "next/link";
-import type { ReactNode } from "react";
+import type { ReactNode, JSX } from "react";
 
 interface ErrorLayoutProps {
   title?: string;
@@ -26,7 +26,7 @@ const ErrorLayout = ({title, children}: ErrorLayoutProps) => {
 const UserNotInRoom = () => {
   const params = useParams();
   const { roomId } = params;
-  const roomName = roomId ?? "";
+  const roomName = roomId as string ?? "";
 
   return (
     <ErrorLayout title="User is not in this room...">

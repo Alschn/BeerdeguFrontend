@@ -1,19 +1,19 @@
-import { useState } from "react";
 import {
-  Group,
   Box,
   Collapse,
+  Group,
+  Popover,
   ThemeIcon,
+  Tooltip,
   UnstyledButton,
   createStyles,
-  rem,
   getStylesRef,
-  Tooltip,
-  Popover,
+  rem,
 } from "@mantine/core";
-import { IconChevronRight, type TablerIconsProps } from "@tabler/icons-react";
+import { IconChevronRight, type IconProps } from "@tabler/icons-react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, type FunctionComponent } from "react";
 
 const useStyles = createStyles((theme) => ({
   control: {
@@ -78,7 +78,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 interface LinksGroupProps {
-  icon: React.FC<TablerIconsProps>;
+  icon: FunctionComponent<Omit<IconProps, "ref">>;
   label: string;
   isExpanded: boolean;
   initiallyOpened?: boolean;

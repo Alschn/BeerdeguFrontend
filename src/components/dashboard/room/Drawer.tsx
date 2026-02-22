@@ -10,10 +10,12 @@ import { useRouter } from "next/navigation";
 import { leaveRoom } from "~/api/rooms";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "~/components/context/auth";
+import { useWebsocketClient } from "~/components/context/websocket";
 
 const RoomDrawer = ({ opened, onClose }: DrawerProps) => {
   const { user } = useAuth();
-  const { roomName, state, isHost, sendJsonMessage, users } = useRoom();
+  const { roomName, state, isHost, users } = useRoom();
+  const { sendJsonMessage } = useWebsocketClient();
   const router = useRouter();
 
   const getRoomState = () => {
@@ -54,8 +56,8 @@ const RoomDrawer = ({ opened, onClose }: DrawerProps) => {
       if (user) {
         sendJsonMessage({
           command: Commands.USER_LEAVE,
-          data: user.username
-        })
+          data: user.username,
+        });
       }
       onClose();
       notifications.show({
@@ -65,7 +67,8 @@ const RoomDrawer = ({ opened, onClose }: DrawerProps) => {
       });
       router.push("/dashboard");
     },
-    onError: () => {
+    onError: (_) => {
+      // todo: handle errors
       notifications.show({
         title: "Error",
         message: "Could not leave room",

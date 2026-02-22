@@ -4,22 +4,23 @@ import {
   Anchor,
   Button,
   Divider,
+  Flex,
   Group,
   Paper,
-  type PaperProps,
   PasswordInput,
   Stack,
   Text,
   TextInput,
-  Flex,
+  type PaperProps,
 } from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { useMutation } from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import NextLink from "next/link";
+import { useForm, zodResolver } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
+import { useMutation } from "@tanstack/react-query";
+import NextLink from "next/link";
+import { getGoogleAuthUrl, register, type RegisterPayload } from "~/api/auth";
+import { APIError, isApiError } from "~/api/errors";
 import GoogleButton from "../GoogleButton";
-import { type RegisterPayload, register, getGoogleAuthUrl } from "~/api/auth";
+import { z } from "zod";
 
 const useRegisterMutation = () => {
   return useMutation({
@@ -32,19 +33,26 @@ const useRegisterMutation = () => {
       });
     },
     onError: (error) => {
-      if (error instanceof AxiosError) {
+      if (!isApiError(error)) {
         notifications.show({
-          title: "Failed to create account",
-          message: "Make sure you entered correct data",
+          title: "Something went wrong",
+          message: "Try again later...",
           color: "red",
         });
         return;
       }
-      notifications.show({
-        title: "Something went wrong",
-        message: "Try again later...",
-        color: "red",
-      });
+
+      const err = APIError.fromAxiosError(error);
+      // todo: improve errors
+      if (err.type === "validation_error") {
+        notifications.show({
+          title: "Please correct the following errors:",
+          message: err.details.join(", "),
+          color: "red",
+          autoClose: 5000,
+        });
+        return;
+      }
     },
   });
 };
@@ -58,7 +66,8 @@ const useGoogleLoginInitMutation = () => {
       // navigate to google auth page
       window.location.href = url;
     },
-    onError: () => {
+    onError: (_) => {
+      // todo: handle errors
       notifications.show({
         title: "Failed to redirect to Google authorization page",
         message: "Please try again later...",
@@ -67,7 +76,21 @@ const useGoogleLoginInitMutation = () => {
   });
 };
 
-const MIN_PASSWORD_LENGTH = 6;
+const MIN_PASSWORD_LENGTH = 8;
+const MIN_PASSWORD_LENGTH_MESSAGE = `Password should include at least ${MIN_PASSWORD_LENGTH} characters`;
+const PASSWORDS_DO_NOT_MATCH_MESSAGE = "Passwords do not match";
+
+const registerSchema = z
+  .object({
+    email: z.string().email("Invalid email address"),
+    username: z.string().min(1, "Username is required"),
+    password1: z.string().min(MIN_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH_MESSAGE),
+    password2: z.string().min(MIN_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH_MESSAGE),
+  })
+  .refine((data) => data.password1 === data.password2, {
+    path: ["password2"],
+    message: PASSWORDS_DO_NOT_MATCH_MESSAGE,
+  });
 
 export function RegisterForm(props: PaperProps) {
   const form = useForm({
@@ -77,15 +100,7 @@ export function RegisterForm(props: PaperProps) {
       password1: "",
       password2: "",
     },
-    validate: {
-      email: (val) => (/^\S+@\S+$/.test(val) ? null : "Invalid email"),
-      password1: (val) =>
-        val.length <= MIN_PASSWORD_LENGTH
-          ? `Password should include at least ${MIN_PASSWORD_LENGTH} characters`
-          : null,
-      password2: (val, values) =>
-        val !== values.password1 ? "Passwords do not match" : null,
-    },
+    validate: zodResolver(registerSchema),
   });
 
   const registerMutation = useRegisterMutation();
@@ -125,54 +140,41 @@ export function RegisterForm(props: PaperProps) {
       <form onSubmit={form.onSubmit(handleSubmitRegister)}>
         <Stack>
           <TextInput
-            required
+            {...form.getInputProps("username")}
+            name="username"
             label="Username"
             placeholder="Enter username"
-            value={form.values.username}
-            onChange={(event) =>
-              form.setFieldValue("username", event.currentTarget.value)
-            }
-            error={form.errors.username && "Invalid username"}
             radius="md"
+            required
           />
           <TextInput
-            required
+            {...form.getInputProps("email")}
+            type="email"
+            name="email"
             label="Email"
             placeholder="Enter email"
-            value={form.values.email}
-            onChange={(event) =>
-              form.setFieldValue("email", event.currentTarget.value)
-            }
-            error={form.errors.email && "Invalid email"}
             radius="md"
+            required
           />
           <PasswordInput
-            required
+            {...form.getInputProps("password1")}
+            name="password1"
             label="Password"
             placeholder="Enter password"
-            value={form.values.password1}
-            onChange={(event) =>
-              form.setFieldValue("password1", event.currentTarget.value)
-            }
-            error={
-              form.errors.password &&
-              `"Password should include at least ${MIN_PASSWORD_LENGTH} characters"`
-            }
+            description={MIN_PASSWORD_LENGTH_MESSAGE}
+            minLength={MIN_PASSWORD_LENGTH}
             radius="md"
+            required
           />
           <PasswordInput
-            required
+            {...form.getInputProps("password2")}
+            name="password2"
             label="Confirm Password"
             placeholder="Confirm password"
-            value={form.values.password2}
-            onChange={(event) =>
-              form.setFieldValue("password2", event.currentTarget.value)
-            }
-            error={
-              form.errors.password &&
-              `Password should include at least ${MIN_PASSWORD_LENGTH} characters`
-            }
+            description={MIN_PASSWORD_LENGTH_MESSAGE}
+            minLength={MIN_PASSWORD_LENGTH}
             radius="md"
+            required
           />
         </Stack>
         <Group position="apart" mt="xl">

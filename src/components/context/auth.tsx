@@ -3,7 +3,7 @@ import { type ReactNode, createContext, useContext } from "react";
 import { decode, type JwtPayload } from "jsonwebtoken";
 
 interface User {
-  id: string;
+  id: number;
   username: string;
   email: string;
 }
@@ -13,7 +13,7 @@ interface JWTPayload {
   exp: number;
   iat: number;
   jti: string;
-  user_id: string;
+  user_id: number;
   username: string;
   email: string;
 }

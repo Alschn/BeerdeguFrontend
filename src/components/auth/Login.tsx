@@ -13,14 +13,15 @@ import {
   TextInput,
   Flex,
 } from "@mantine/core";
-import { useForm } from "@mantine/form";
+import { useForm, zodResolver } from "@mantine/form";
 import NextLink from "next/link";
 import { notifications } from "@mantine/notifications";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import GoogleButton from "../GoogleButton";
 import { type LoginPayload, getGoogleAuthUrl, login } from "~/api/auth";
+import { APIError, isApiError } from "~/api/errors";
+import { z } from "zod";
 
 const useGoogleLoginInitMutation = () => {
   return useMutation({
@@ -30,7 +31,8 @@ const useGoogleLoginInitMutation = () => {
       // navigate to google auth page
       window.location.href = url;
     },
-    onError: () => {
+    onError: (_) => {
+      // todo: handle error messages
       notifications.show({
         title: "Failed to redirect to Google authorization page",
         message: "Please try again later...",
@@ -39,10 +41,14 @@ const useGoogleLoginInitMutation = () => {
   });
 };
 
+const ErrorCodes = {
+  EMAIL_NOT_VERIFIED: "email_not_verified",
+  NO_ACTIVE_ACCOUNT: "no_active_account",
+} as const;
+
 const useLoginMutation = () => {
   const searchParams = useSearchParams();
   const next = searchParams.get("next");
-  const router = useRouter();
 
   return useMutation({
     mutationFn: (data: LoginPayload) => login(data),
@@ -52,15 +58,16 @@ const useLoginMutation = () => {
         message: "Redirecting to homepage...",
         color: "green",
       });
-      router.refresh();
       let nextPath = next;
-      if (next?.startsWith('/auth/login')) {
-        nextPath = '/';
+      if (next?.startsWith("/auth/login")) {
+        nextPath = "/";
       }
-      router.push(nextPath || "/");
+      // force "hard" navigation instead of router.refresh to discard previous client state;
+      // this way the layout will contain content that is not stale (user dropdown instead of auth buttons)
+      window.location.replace(nextPath || "/");
     },
     onError: (error) => {
-      if (!(error instanceof AxiosError) || error?.response?.status === 500) {
+      if (!isApiError(error) || error?.response?.status === 500) {
         notifications.show({
           title: "Something went wrong",
           message: "Please try again later...",
@@ -69,10 +76,9 @@ const useLoginMutation = () => {
         return;
       }
 
-      if (
-        [400, 401].includes(error.response?.status as number) &&
-        (error.response?.data as { email?: string })?.email
-      ) {
+      const err = APIError.fromAxiosError(error);
+      const emailErr = err.getErrorByCode(ErrorCodes.EMAIL_NOT_VERIFIED);
+      if (emailErr) {
         notifications.show({
           title: "Your email is unverified",
           message: "Please check your email for a verification link.",
@@ -81,10 +87,11 @@ const useLoginMutation = () => {
         return;
       }
 
-      if ([400, 401].includes(error.response?.status as number)) {
+      const validationErr = err.getErrorByCode(ErrorCodes.NO_ACTIVE_ACCOUNT);
+      if (validationErr) {
         notifications.show({
-          title: "Login failed",
-          message: "Please check your username and password",
+          title: "Invalid credentials",
+          message: "Please check your username and password.",
           color: "red",
         });
         return;
@@ -93,12 +100,18 @@ const useLoginMutation = () => {
   });
 };
 
+const loginSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
+});
+
 export function LoginForm(props: PaperProps) {
   const form = useForm({
     initialValues: {
       username: "",
       password: "",
     },
+    validate: zodResolver(loginSchema),
   });
 
   const mutation = useLoginMutation();
@@ -135,29 +148,20 @@ export function LoginForm(props: PaperProps) {
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
           <TextInput
-            required
+            {...form.getInputProps("username")}
+            name="username"
             label="Username"
             placeholder="Enter username"
-            value={form.values.username}
-            onChange={(event) =>
-              form.setFieldValue("username", event.currentTarget.value)
-            }
-            error={form.errors.username && "Invalid username"}
             radius="md"
+            required
           />
           <PasswordInput
-            required
+            {...form.getInputProps("password")}
+            name="password"
             label="Password"
             placeholder="Enter password"
-            value={form.values.password}
-            onChange={(event) =>
-              form.setFieldValue("password", event.currentTarget.value)
-            }
-            error={
-              form.errors.password &&
-              "Password should include at least 6 characters"
-            }
             radius="md"
+            required
           />
         </Stack>
 

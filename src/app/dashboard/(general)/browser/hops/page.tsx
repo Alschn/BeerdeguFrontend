@@ -6,7 +6,7 @@ import { env } from "~/env.mjs";
 const HOPS_PAGE_SIZE = 10;
 
 export default async function DashboardBrowserHopsPage() {
-  const access = cookies().get("access");
+  const access = (await cookies()).get("access");
   const r = await fetch(
     `${env.API_URL}/api/hops/?page=1&page_size=${HOPS_PAGE_SIZE}`,
     {
